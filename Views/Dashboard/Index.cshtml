@@ -1,0 +1,286 @@
+﻿@using Newtonsoft.Json
+
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    // Serialize data using JsonConvert for chart rendering
+    var reservationsByDayJson = JsonConvert.SerializeObject(ViewBag.ReservationsByDay ?? new Dictionary<string, int>());
+    var reservationStatusJson = JsonConvert.SerializeObject(ViewBag.ReservationStatus ?? new Dictionary<string, int>());
+    var totalSalesJson = JsonConvert.SerializeObject(ViewBag.TotalSales ?? new List<int>());
+}
+
+
+<div class="text-left mb-2">
+    <h1 class="fs-4">Dashboard</h1>
+</div>
+
+<div class="container-fluid">
+    <div class="row">
+
+        <!-- Upcoming Reservations -->
+        <div class="col-lg-3 col-sm-6 mb-2">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <!-- Icon Column -->
+                        <div class="col-auto text-center">
+                            <div class="icon-big text-info">
+                                <i class="fa-solid fa-calendar-days"></i>
+                            </div>
+                        </div>
+                        <!-- Text and Number Column -->
+                        <div class="col ">
+                            <p class="mb-0 fw-bold text-secondary">Upcoming Reservations</p>
+                            <h5 class="mb-0">0</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Available Tables -->
+        <div class="col-lg-3 col-sm-6 mb-2">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <!-- Icon Column -->
+                        <div class="col-auto text-center">
+                            <div class="icon-big text-success">
+                                <i class="fa-solid fa-chair"></i>
+                            </div>
+                        </div>
+                        <!-- Text and Number Column -->
+                        <div class="col ">
+                            <p class="mb-0 fw-bold text-secondary">Available Tables</p>
+                            <h5 class="mb-0">0</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Finished Reservations -->
+        <div class="col-lg-3 col-sm-6 mb-2">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <!-- Icon Column -->
+                        <div class="col-auto text-center">
+                            <div class="icon-big text-success">
+                                <i class="fa-solid fa-calendar-check"></i>
+                            </div>
+                        </div>
+                        <!-- Text and Number Column -->
+                        <div class="col ">
+                            <p class="mb-0 fw-bold text-secondary">Finished Reservations</p>
+                            <h5 class="mb-0">0</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seated Guests -->
+        <div class="col-lg-3 col-sm-6 mb-2">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <!-- Icon Column -->
+                        <div class="col-auto text-center">
+                            <div class="icon-big text-info">
+                                <i class="fa-solid fa-user-check"></i>
+                            </div>
+                        </div>
+                        <!-- Text and Number Column -->
+                        <div class="col ">
+                            <p class="mb-0 fw-bold text-secondary">Seated Guests</p>
+                            <h5 class="mb-0">0</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Total Tables -->
+        <div class="col-lg-3 col-sm-6 mb-2">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <!-- Icon Column -->
+                        <div class="col-auto text-center">
+                            <div class="icon-big text-info">
+                                <i class="fa-solid fa-chair"></i>
+                            </div>
+                        </div>
+                        <!-- Text and Number Column -->
+                        <div class="col ">
+                            <p class="mb-0 fw-bold text-secondary">Total Tables</p>
+                            <h5 class="mb-0">0</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- Reservation Calendar and Number of Reservations -->
+    <div class="row mt-2">
+        <div class="col-md-6 mt-3">
+            <div class="card shadow-sm border-0">
+                <div class="">
+                    <h4 class="title fw-normal">Reservation Calendar</h4>
+                    <p class="category text-secondary">Calendar to view all upcoming reservations.</p>
+                </div>
+                <div class="content">
+                    <div id=""></div>
+                    <div class="footer">
+                        <hr>
+                        <div class="stats">
+                            <i class="ti-timer"></i> Campaign sent 2 days ago
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mt-3">
+            <div class="card shadow-sm border-0">
+                <div class="">
+                    <h4 class="title fw-normal">Reservations Chart</h4>
+                    <p class="category text-secondary">A chart to view all reservations</p>
+                </div>
+                <div class="content">
+                    <div id=""></div>
+                    <div class="footer">
+                        <hr>
+                        <div class="stats">
+                            <i class="ti-timer"></i> Campaign sent 2 days ago
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Reservation Status Overview and Total Sales -->
+    <div class="row">
+        <div class="col-md-6 mt-3">
+            <div class="card shadow-sm border-0">
+                <div class="">
+                    <h4 class="title fw-normal">Reservation Status Overview</h4>
+                    <p class="category text-secondary">Overview of reservation status</p>
+                </div>
+                <div class="content">
+                    <div id=""></div>
+                    <div class="footer">
+                        <hr>
+                        <div class="stats">
+                            <i class="ti-timer"></i> Campaign sent 2 days ago
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mt-3">
+            <div class="card shadow-sm border-0">
+                <div class="">
+                    <h4 class="title fw-normal">Total Revenue</h4>
+                    <p class="category text-secondary">Summarry of all the revenue.</p>
+                </div>
+                <div class="content">
+                    <div id=""></div>
+                    <div class="footer">
+                        <hr>
+                        <div class="stats">
+                            <i class="ti-timer"></i> Campaign sent 2 days ago
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<style>
+    .icon-big {
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        padding: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .icon-big.text-info {
+            background-color: rgba(0, 191, 255, 0.20); 
+            color: white;
+        }
+
+        .icon-big.text-success {
+            background-color: rgba(34, 193, 34, 0.20); 
+            color: white;
+        }
+</style>
+
+
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Reservations by Day Chart
+        const reservationsData = JSON.parse('@reservationsByDayJson');
+        const reservationsChart = new Chart(document.getElementById('reservationsChart'), {
+            type: 'bar',
+            data: {
+                labels: Object.keys(reservationsData),
+                datasets: [{
+                    label: 'Reservations',
+                    data: Object.values(reservationsData),
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            }
+        });
+
+        // Reservation Status Chart
+        const statusData = JSON.parse('@reservationStatusJson');
+        const statusChart = new Chart(document.getElementById('statusChart'), {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(statusData),
+                datasets: [{
+                    data: Object.values(statusData),
+                    backgroundColor: ['#28a745', '#ffc107', '#dc3545']
+                }]
+            }
+        });
+
+        // Total Sales Chart
+        const totalSalesData = JSON.parse('@totalSalesJson');
+        const salesChart = new Chart(document.getElementById('salesChart'), {
+            type: 'line',
+            data: {
+                labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+                datasets: [{
+                    label: 'Total Sales',
+                    data: totalSalesData,
+                    borderColor: '#007bff',
+                    fill: false
+                }]
+            }
+        });
+
+    </script>
+}

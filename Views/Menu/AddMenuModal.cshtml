@@ -1,0 +1,47 @@
+﻿@model Menu
+
+<!-- Modal -->
+<div class="modal fade" id="addMenu" tabindex="-1" aria-labelledby="addMenuLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="addMenuLabel">Create New Menu</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form asp-action="Create" asp-controller="Menu" id="addMenuForm" method="post" enctype="multipart/form-data">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-group mb-2">
+                        <label class="control-label mb-1">Name <span class="text-danger">*</span></label>
+                        <input type="text" placeholder="Type name for menu" asp-for="Name" class="form-control" required/>
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+                    <div class="form-group mb-2">
+                        <label class="control-label mb-1">Category <span class="text-danger">*</span></label>
+                        <select class="form-select" asp-for="Category" required>
+                            <option value="" selected>Select a category</option>
+                            <option value="breakfast">Breakfast</option>
+                            <option value="lunch">Lunch</option>
+                            <option value="dinner">Dinner</option>
+                        </select>
+                        <span asp-validation-for="Category" class="text-danger"></span>
+                    </div>
+                    <div class="form-group mb-2">
+                        <label class="control-label mb-1">Price <span class="text-danger">*</span></label>
+                        <input type="number" placeholder="ex. 123" asp-for="Price" class="form-control" value="" required />
+                        <span asp-validation-for="Price" class="text-danger"></span>
+                    </div><div class="form-group mb-2">
+                        <label class="control-label mb-1">Description</label>
+                        <textarea asp-for="Description" placeholder="Write a short description here" class="form-control"></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add</button>
+                    </div>
+                </form>
+            </div>
+            
+        </div>
+    </div>
+</div>

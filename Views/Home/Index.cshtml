@@ -1,0 +1,176 @@
+﻿@{
+    ViewData["Title"] = "Home";
+    Layout = "~/Views/Shared/_CustomerLayout.cshtml";
+}
+
+<!-- MAIN SECTION -->
+<section id="Home" style="background-color:white;" class="height-100 container-fluid">
+
+
+    <div class="col-12 text-container" style="text-align: center; text-align: left; align-content: left;">
+        <p style="font-size: 10vw; margin: 0; line-height: 1.2; font-family: 'Cormorant Garamond';">
+            NO LINES,
+        </p>
+        <p style="font-size: 8vw; margin: 0; line-height: 1.2; font-family: 'Cormorant Garamond'; margin-left: 2%; margin-top: 2%;">
+            NO WORRIES.
+        </p>
+    </div>
+
+    <style>
+        /* Mobile first approach */
+        .text-container p {
+            font-size: 8vw; /* Relative font size based on viewport width */
+            margin: 0;
+            line-height: 1.2;
+        }
+
+            .text-container p:nth-child(2) {
+                margin-left: 2%;
+            }
+
+        /* Larger screens */
+        @@media (min-width: 768px) {
+            .text-container p
+
+        {
+            font-size: 5rem; /* Adjust for medium screens */
+        }
+
+        }
+
+        @@media (min-width: 1200px) {
+            .text-container p
+
+        {
+            font-size: 6rem; /* Adjust for large screens */
+        }
+
+        .text-container p:nth-child(2) {
+            margin-left: 1%;
+        }
+
+        }
+    </style>
+
+    <div style="height: 200px; width: 2px; background-color: black; margin: 0 auto; margin-left: 55%; display: block; margin-top: -200px;"></div>
+
+
+    <img src="~/assets/MENU.png" alt="Right Image" style="position: absolute; top: 35%; right: 5%; transform: translateY(-50%); width: 40vw; height: auto;">
+    <p style="color:black; font-family:'Cormorant Garamond'; font-size:3rem; margin-left:60%; margin-top: -100px;">Easily reserve your table and enjoy a seamless dining experience, with no wait and all the flavors you crave.</p>
+    <!---
+    <img src="~/assets/2-MENU.png" alt="Right Image" style="position: absolute; top: 70%; right: 5%; transform: translateY(-50%); width: 40vw; height: auto;">
+    -->
+    <!---
+        <div style="display: flex; justify-content: left; align-items: flex-start;">
+            <button type="button" style="text-align: center; padding: 10px 20px; width:300px; height:50px; border-radius: 26px; background-color: darkgoldenrod; color: white; font-size: 16px; border: none; margin-left:3s0%;" class="btn" onclick="window.location.href='@Url.Action("Reservation", "CReservation")'">
+                BOOK NOW
+            </button>
+        </div>
+    -->
+
+</section>
+
+<!-- Customers SECTION -->
+<section id="customers" class="d-flex justify-content-center align-items-center" style="background: white; padding: 0%; height: auto;">
+
+    <div style="text-align: center; animation: slideLeft 1s ease-out;">
+        <h1 style="color: darkgoldenrod; font-size:7rem; font-weight:bold; font-family: 'Cormorant Garamond';">
+            Our Menu
+        </h1>
+        <p style="color:black; text-align:center; font-weight:bold; font-family: 'Cormorant Garamond'; font-size:2rem;">
+            Find your perfect dining match and reserve your table instantly.
+        </p>
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; padding: 20px;">
+            <div style="text-align: left; border-radius: 8px;">
+                <img src="~/assets/pasta.png" alt="Pasta" style="display: block; width: 100%; border-radius: 8px;">
+            </div>
+            <div style="text-align: left; border-radius: 8px;">
+                <img src="~/assets/kare-kare.png" alt="Kare-Kare" style="display: block; width: 100%; border-radius: 8px;">
+            </div>
+            <div style="text-align: left; border-radius: 8px;">
+                <img src="~/assets/afritada.png" alt="Image 3" style="display: block; width: 100%; border-radius: 8px;">
+            </div>
+            <div style="text-align: left; border-radius: 8px;">
+                <img src="~/assets/adobo.png" alt="Image 4" style="display: block; width: 100%; border-radius: 8px;">
+            </div>
+        </div>
+
+        <hr style="border: 1px solid #000; width: 100%; margin: 20px 0;">
+
+    </div>
+
+</section>
+
+<!-- About us SECTION -->
+<section id="about" class="d-flex justify-content-center align-items-center" style="background: white; padding: 0%; height: auto; flex-direction: column;">
+    <h1 style="color: darkgoldenrod; font-size: 7rem; font-weight: bold; font-family: 'Cormorant Garamond'; font-style: italic; text-align: center;">
+        Explore our Buffet
+    </h1>
+    <p style="color: black; text-align: center; font-family: 'Cormorant Garamond'; font-size: 2rem; margin-top: 10px;">
+        Indulge in a delightful selection of dishes crafted to satisfy every craving.
+    </p>
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; padding: 20px;">
+        <div style="text-align: center; border-radius: 8px; background-color: #f5f5f5; padding: 20px;">
+            <img src="~/assets/Breakfast-Buffet.png" alt="Rotated Image" class="img-fluid">>
+            <p style="font-weight: bold; font-family: 'Cormorant Garamond'; font-size: 1.5rem; margin-top: 10px;">Breakfast Buffet</p>
+            <p style="font-family: 'Cormorant Garamond'; font-size: 1rem;">Enjoy a variety of fresh pastries, fruits, eggs, and hot breakfast options to kick-start your day.</p>
+        </div>
+        <div style="text-align: center; border-radius: 8px; background-color: #f5f5f5; padding: 20px;">
+            <img src="~/assets/lunch-buffet.png" alt="Rotated Image" class="img-fluid">>
+            <p style="font-weight: bold; font-family: 'Cormorant Garamond'; font-size: 1.5rem; margin-top: 10px;">Lunch Buffet</p>
+            <p style="font-family: 'Cormorant Garamond'; font-size: 1rem;">Enjoy a wide range of hot dishes, salads, and beverages that will satisfy your hunger during lunchtime.</p>
+        </div>
+        <div style="text-align: center; border-radius: 8px; background-color: #f5f5f5; padding: 20px;">
+            <img src="~/assets/dinner-final.jpg" alt="Rotated Image" class="img-fluid">>
+            <p style="font-weight: bold; font-family: 'Cormorant Garamond'; font-size: 1.5rem; margin-top: 10px;">Dinner Buffet</p>
+            <p style="font-family: 'Cormorant Garamond'; font-size: 1rem;">Indulge in an exquisite selection of gourmet dishes, ranging from savory meats to decadent desserts. A perfect dining experience to end your day.</p>
+        </div>
+    </div>
+
+</section>
+
+<!-- Contact Us SECTION -->
+<section id="contact" class="height-100 text-black" style="padding: 50px 0; background-color:white;">
+    <div class="container">
+        <h2 class="text-center" style="font-family: 'Cormorant Garamond', serif; font-size: 3rem; margin-bottom: 30px;">Contact Us</h2>
+
+        <!-- Contact Form -->
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <form action="#" method="POST">
+                    <!-- Name -->
+                    <div class="form-group">
+                        <label for="name" style="font-family: 'Cormorant Garamond', serif; font-size: 1.2rem;">Full Name</label>
+                        <input type="text" class="form-control" id="name" placeholder="Enter your name" required style="border-radius: 8px; margin-bottom:20px; border-radius:20px;">
+                    </div>
+
+                    <!-- Email -->
+                    <div class="form-group">
+                        <label for="email" style="font-family: 'Cormorant Garamond', serif; font-size: 1.2rem;">Email Address</label>
+                        <input type="email" class="form-control" id="email" placeholder="Enter your email" required style="border-radius: 8px; margin-bottom:20px; border-radius:20px;">
+                    </div>
+
+                    <!-- Message -->
+                    <div class="form-group">
+                        <label for="message" style="font-family: 'Cormorant Garamond', serif; font-size: 1.2rem;">Your Message</label>
+                        <textarea class="form-control" id="message" rows="4" placeholder="Write your message here..." required style="border-radius: 8px; margin-bottom:20px; border-radius:20px;"></textarea>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div style="text-align: center;">
+                        <button type="submit" class="btn btn-primary btn-block" style="font-size: 1.2rem; padding: 10px 20px; border-radius: 20px; margin-bottom: 20px; background-color: green; display: inline-block;">
+                            Send Message
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+
+
+
+

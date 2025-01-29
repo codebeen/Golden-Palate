@@ -1,0 +1,58 @@
+﻿@model RRS.Models.Menu
+
+<!-- Modal for Editing Menu -->
+<div class="modal fade" id="editMenu-@Model.Id" tabindex="-1" aria-labelledby="editMenuLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="editMenuLabel">Edit Menu</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form asp-action="Edit" asp-controller="Menu" id="editMenuForm" method="post" enctype="multipart/form-data">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="Id" />
+
+                    <!-- Form Group for Name -->
+                    <div class="form-group mb-2 text-start">
+                        <label for="Name" class="form-label">Name <span class="text-danger">*</span></label>
+                        <input type="text" id="Name" placeholder="Type name for menu" asp-for="Name" class="form-control" required />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+
+                    <!-- Form Group for Category -->
+                    <div class="form-group mb-2 text-start">
+                        <label for="Category" class="form-label">Category <span class="text-danger">*</span></label>
+                        <select id="Category" class="form-select" asp-for="Category" required>
+                            <option value="" selected>Select a category</option>
+                            <option value="breakfast">Breakfast</option>
+                            <option value="lunch">Lunch</option>
+                            <option value="dinner">Dinner</option>
+                        </select>
+                        <span asp-validation-for="Category" class="text-danger"></span>
+                    </div>
+
+                    <!-- Form Group for Price -->
+                    <div class="form-group mb-2 text-start">
+                        <label for="Price" class="form-label">Price <span class="text-danger">*</span></label>
+                        <input type="number" id="Price" placeholder="ex. 123" asp-for="Price" class="form-control" required />
+                        <span asp-validation-for="Price" class="text-danger"></span>
+                    </div>
+
+                    <!-- Form Group for Description -->
+                    <div class="form-group mb-2 text-start">
+                        <label for="Description" class="form-label">Description</label>
+                        <textarea id="Description" asp-for="Description" placeholder="Write a short description here" class="form-control"></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+
+                    <!-- Modal Footer -->
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

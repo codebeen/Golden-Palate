@@ -1,0 +1,59 @@
+﻿@{
+    ViewData["Title"] = "Payments";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+﻿@{
+    ViewData["Title"] = "Payments";
+}
+
+<div class="text-left mb-2 d-flex align-items-center justify-content-between">
+    <div>
+        <h1 class="fs-4">Payments</h1>
+        <p class="text-secondary">Records of all the payments made by customers.</p>
+    </div>
+
+    @* <button type="button" class="btn btn-warning" data-bs-toggle="" data-bs-target=""> *@
+    @*     <i class="fa-solid fa-download"></i>  Export CSV *@
+    @* </button> *@
+</div>
+
+
+<!-- DataTales Example -->
+<div class="card border-0 shadow-sm mb-5">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover text-center" id="paymentsTable">
+                <thead>
+                    <tr>
+                        <th>Payment Method</th>
+                        <th>Customer</th>
+                        <th>Total Amount</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>
+                            <button type="button" class="btn btn-info btn-sm rounded px-3 py-1" data-toggle="modal" data-bs-target="" data-url="">
+                                View
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        new DataTable('#paymentsTable');
+    });
+</script>

@@ -1,0 +1,111 @@
+﻿@model IEnumerable<RRS.Models.Menu>
+@{
+    ViewData["Title"] = "Menu Management";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="text-left mb-2 d-flex align-items-center justify-content-between">
+    <div>
+        <h1 class="fs-4">Menu Management</h1>
+        <p class="text-secondary">List of available menu items.</p>
+    </div>
+    <div class="gap-3">
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addMenu">
+            <i class="fa-solid fa-plus"></i>  Add Menu
+        </button>
+        @* <button type="button" class="btn btn-warning" data-bs-toggle="" data-bs-target=""> *@
+        @*     <i class="fa-solid fa-download"></i>  Export CSV *@
+        @* </button> *@
+    </div>
+</div>
+
+<script>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <text>
+                Swal.fire({
+                    title: 'Success!',
+                    text: '@TempData["SuccessMessage"]',
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                 });
+        </text>
+    }
+
+    @if (TempData["InformationMessage"] != null)
+    {
+        <text>
+                Swal.fire({
+                    title: 'Information!',
+                text: '@TempData["InformationMessage"]',
+                icon: 'info',
+                confirmButtonText: 'OK'
+                         });
+        </text>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <text>
+                Swal.fire({
+                    title: 'Error!',
+                    text: '@TempData["ErrorMessage"]',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+        </text>
+    }
+</script>
+
+<!-- DataTales Example -->
+<div class="card border-0 shadow-sm mb-5">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover text-center" id="menuTable">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Price</th>
+                        <th>Category</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @*   @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.Name</td>
+                            <td>@item.Description</td>
+                            <td>@item.Price.ToString("C", new System.Globalization.CultureInfo("fil-PH"))</td>
+                            <td>@item.Category</td>
+                            <td class="d-flex justify-content-center gap-2">
+                                <button type="button" class="btn btn-outline-warning btn-sm rounded-pill px-3 py-1" data-bs-toggle="modal" data-bs-target="#editMenu-@item.Id" data-url="@Url.Action($"Edit/{item.Id}")">
+                                    Edit
+                                </button>
+                                @await Html.PartialAsync("EditMenuModal", item)
+                                <button type="button" class="btn btn-outline-danger btn-sm rounded-pill px-3 py-1" data-bs-toggle="modal" data-bs-target="#deleteMenu-@item.Id" data-url="@Url.Action($"Delete/{item.Id}")">
+                                    Delete
+                                </button>
+                                @await Html.PartialAsync("DeleteMenuModal", item)
+                            </td>
+                        </tr>
+                    } *@
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modals -->
+@await Html.PartialAsync("AddMenuModal", new Menu())
+
+<!-- Scroll to Top Button -->
+<a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+</a>
+
+<!-- Bootstrap JS Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>

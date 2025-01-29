@@ -1,0 +1,280 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap");
+
+
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+
+
+/* Reservation item layout */
+.reservation-item {
+    position: relative; /* Allows positioning the button inside the container */
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px 15px;
+    display: flex;
+    justify-content: flex-start; /* Align other content to the left */
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin-bottom: 15px;
+    width: 100%;
+}
+
+    .reservation-item .d-flex {
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px; /* Space between details and button */
+    }
+
+.time {
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: #444;
+    margin-right: 10px;
+    white-space: nowrap;
+}
+
+/* Align details and name to the left */
+.details {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+    gap: 5px;
+}
+
+    .details .name {
+        font-size: 1rem;
+        font-weight: bold;
+        color: #333;
+    }
+
+    .details div {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+        .details div i {
+            margin-right: 5px;
+            font-size: 1rem;
+        }
+
+.btn-primary {
+    background-color: goldenrod;
+    border-color: gold;
+    color: white;
+}
+
+    .btn-primary:hover {
+        background-color: darkgoldenrod;
+        border-color: gold;
+    }
+
+/* Button positioning */
+.reservation-item button {
+    position: absolute; /* Position the button inside the container */
+    right: 10px; /* Align to the right corner */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    border: none;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.btn-danger {
+    background-color: #e63946;
+}
+
+.btn-success {
+    background-color: #2a9d8f;
+}
+
+/* Right Panel */
+.table-layout {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr); /* Adjust the number of columns based on your layout */
+    gap: 20px;
+    justify-content: center;
+    align-items: center;
+    height: 35%;
+    padding: 30px
+}
+
+.table-box {
+    width: 100px;
+    height: 100px;
+    background: #f0f0f0;
+    border-radius: 5px;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+}
+
+    .table-box:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+.table-number {
+    background: black;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1rem;
+    font-weight: bold;
+    position: absolute;
+}
+
+.table-box {
+    width: 120px;
+    height: 120px;
+    height: 120px;
+    position: relative;
+}
+
+.table-number {
+    top: -10px;
+    left: -10px;
+    font-size: 20px;
+}
+
+.table-info {
+    font-size: 12px;
+}
+
+.available {
+    background-color: lime;
+}
+
+.reserved {
+    background-color: orangered;
+}
+
+.seated {
+    background-color: gainsboro;
+}
+
+.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+
+.alert-success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.alert-danger {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+.alert-warning {
+    color: #856404;
+    background-color: #fff3cd;
+    border-color: #ffeeba;
+}
+
+.alert i {
+    margin-right: 10px;
+}
+
+
+
+/* Ensure the body and html fit the viewport */
+html, body {
+    margin: 0;
+    padding: 0;
+    /*overflow: hidden;*/ /* Disable scrolling */
+    height: 100%; /* Force full height */
+    width: 100%; /* Ensure full width */
+    box-sizing: border-box; /* Standardize box model */
+    font-family = 'Poppins';
+}
+
+
+.card {
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.table {
+    width: 100%;
+    color: #333;
+    margin-bottom: 0;
+}
+
+    .table th {
+        font-size: 14px;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: #555;
+    }
+
+    .table td {
+        font-size: 14px;
+    }
+
+.badge {
+    font-size: 12px;
+    padding: 5px 10px;
+    border-radius: 10px;
+}
+
+.btn {
+    font-size: 12px;
+    text-transform: capitalize;
+    padding-top: 5px;
+}
+
+.manageTblBtn {
+    font-size: 14px;
+    border-radius: 5px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    border-color: gold;
+    text-align: center;
+}
+
+h3 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #333;
+}
+
+.table-info {
+    font-size: 10px;
+    margin: 0;
+    padding: 0;
+    font-weight: bold;
+}

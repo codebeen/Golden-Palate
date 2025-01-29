@@ -1,0 +1,53 @@
+﻿@model Table
+
+<!-- Modal -->
+<div class="modal fade" id="addTable" tabindex="-1" aria-labelledby="addTableLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="addMenuLabel">Create New Table</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form asp-action="Create" asp-controller="Table" id="addTableForm" method="post" enctype="multipart/form-data">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-group mb-2">
+                        <label class="control-label mb-1">Table Number <span class="text-danger">*</span></label>
+                        <input type="number" value="" placeholder="15" asp-for="TableNumber" class="form-control" required />
+                        <span asp-validation-for="TableNumber" class="text-danger"></span>
+                    </div>
+                    <div class="form-group mb-2">
+                        <label class="control-label mb-1">Seating Capacity <span class="text-danger">*</span></label>
+                        <input type="number" placeholder="10" value="" asp-for="SeatingCapacity" class="form-control" required />
+                        <span asp-validation-for="SeatingCapacity" class="text-danger"></span>
+                    </div>
+                    <div class="form-group mb-2">
+                        <label class="control-label mb-1">Price <span class="text-danger">*</span></label>
+                        <input type="number" placeholder="₱123" value="" asp-for="Price" class="form-control" required />
+                        <span asp-validation-for="Price" class="text-danger"></span>
+                    </div>
+                    <div class="form-group mb-2">
+                        <label class="control-label mb-1">Table Location <span class="text-danger">*</span></label>
+                        <select class="form-select" asp-for="TableLocation" required>
+                            <option value="" selected>Select a location</option>
+                            <option value="Window">Window</option>
+                            <option value="Indoor">Indoor</option>
+                            <option value="Outdoor">Outdoor</option>
+                        </select>
+                        <span asp-validation-for="TableLocation" class="text-danger"></span>
+                    </div>
+                    <div class="form-group mb-2">
+                        <label class="control-label mb-1">Description</label>
+                        <textarea asp-for="Description" placeholder="Write a short description here" class="form-control"></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add</button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>

@@ -1,0 +1,159 @@
+﻿@model IEnumerable<RRS.Models.Table>
+
+@{
+    ViewData["Title"] = "Table Management";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="text-left mb-2 d-flex align-items-center justify-content-between">
+    <div>
+        <h1 class="fs-4">Table Management</h1>
+        <p class="text-secondary">List of all tables in the restaurant.</p>
+    </div>
+    <div class="gap-3">
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTable">
+            <i class="fa-solid fa-plus"></i>  Add Table
+        </button>
+        @* <button type="button" class="btn btn-warning" data-bs-toggle="" data-bs-target=""> *@
+        @*     <i class="fa-solid fa-download"></i>  Export CSV *@
+        @* </button> *@
+    </div>
+</div>
+
+<script>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <text>
+                Swal.fire({
+                    title: 'Success!',
+                    text: '@TempData["SuccessMessage"]',
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                    });
+        </text>
+    }
+
+    @if (TempData["InformationMessage"] != null)
+    {
+        <text>
+                Swal.fire({
+                    title: 'Information!',
+                    text: '@TempData["InformationMessage"]',
+                    icon: 'info',
+                    confirmButtonText: 'OK'
+                    });
+        </text>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <text>
+                    Swal.fire({
+                        title: 'Error!',
+                        text: '@TempData["ErrorMessage"]',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+        </text>
+    }
+</script>
+
+<!-- DataTales Example -->
+<div class="card border-0 shadow-sm mb-5">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover text-center" id="tableTable">
+                <thead>
+                    <tr>
+                        <th>Table Number</th>
+                        <th>Description</th>
+                        <th>Seating Capacity</th>
+                        <th>Price</th>
+                        <th>Table Location</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var table in Model)
+                    {
+                        <tr>
+                            <td>@table.TableNumber</td>
+                            <td>@table.Description</td>
+                            <td>@table.SeatingCapacity</td>
+                            <td>₱@table.Price</td>
+                            <td>@table.TableLocation</td>
+                            <td>
+                                @if (table.Status.ToLower() == "available")
+                                {
+                                    <span class="badge bg-success">Available</span>
+                                }
+                                else if (table.Status.ToLower() == "reserved")
+                                {
+                                    <span class="badge bg-danger">Reserved</span>
+                                }
+                                else if (table.Status.ToLower() == "occupied")
+                                {
+                                    <span class="badge bg-warning text-dark">Occupied</span>
+                                }
+                            </td>
+                            <td class="d-flex justify-content-center gap-2">
+                                <button type="button" class="btn btn-outline-warning btn-sm rounded-pill px-3 py-1" data-bs-toggle="modal" data-bs-target="#editTable-@table.Id" data-url="@Url.Action($"Edit/{table.Id}")">
+                                    Edit
+                                </button>
+                                @await Html.PartialAsync("EditTableModal", table)
+                                <button type="button" class="btn btn-outline-danger btn-sm rounded-pill px-3 py-1" data-bs-toggle="modal" data-bs-target="#deleteTable-@table.Id" data-url="@Url.Action($"Delete/{table.Id}")">
+                                    Delete
+                                </button>
+                                @await Html.PartialAsync("DeleteTableModal", table)
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modals -->
+@await Html.PartialAsync("AddTableModal", new Table())
+
+<!-- Scroll to Top Button -->
+<a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+</a>
+
+<!-- Bootstrap JS Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            new DataTable('#tableTable');
+        });
+
+        // document.addEventListener("DOMContentLoaded", function () {
+        //     const toast = new bootstrap.Toast(document.getElementById("successNotification"));
+        //     toast.show();
+        //     const deleteButtons = document.querySelectorAll(".deleteTableButton");
+        //     const tableNumberToDelete = document.getElementById("tableNumberToDelete");
+        //     const confirmDeleteButton = document.getElementById("confirmDeleteButton");
+
+        //     Attach click event to delete buttons
+        //     deleteButtons.forEach(button => {
+        //         button.addEventListener("click", function () {
+        //             const tableId = this.getAttribute("data-table-id");
+        //             const tableNumber = this.getAttribute("data-table-number");
+
+        //             Update modal text
+        //             tableNumberToDelete.textContent = tableNumber;
+
+        //             Update confirmation link
+        //             confirmDeleteButton.href = `/Table/DeleteTable/${tableId}`;
+        //         });
+        //     });
+        // });
+    </script>
+}
