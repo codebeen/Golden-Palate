@@ -73,7 +73,8 @@
                         <th>Price</th>
                         <th>Table Location</th>
                         <th>Status</th>
-                        <th>Actions</th>
+                        <th></th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -86,15 +87,15 @@
                             <td>₱@table.Price</td>
                             <td>@table.TableLocation</td>
                             <td>
-                                @if (table.Status.ToLower() == "available")
+                                @if (table.Status == "Available")
                                 {
                                     <span class="badge bg-success">Available</span>
                                 }
-                                else if (table.Status.ToLower() == "reserved")
+                                else if (table.Status == "Reserved")
                                 {
                                     <span class="badge bg-danger">Reserved</span>
                                 }
-                                else if (table.Status.ToLower() == "occupied")
+                                else if (table.Status == "Occupied")
                                 {
                                     <span class="badge bg-warning text-dark">Occupied</span>
                                 }
@@ -104,6 +105,8 @@
                                     Edit
                                 </button>
                                 @await Html.PartialAsync("EditTableModal", table)
+                            </td>
+                            <td>
                                 <button type="button" class="btn btn-outline-danger btn-sm rounded-pill px-3 py-1" data-bs-toggle="modal" data-bs-target="#deleteTable-@table.Id" data-url="@Url.Action($"Delete/{table.Id}")">
                                     Delete
                                 </button>

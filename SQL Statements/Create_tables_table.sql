@@ -7,7 +7,7 @@ CREATE TABLE Tables (
     Price DECIMAL(10,2) NOT NULL DEFAULT 0.00,
     TableImagePath VARCHAR(MAX) NULL,
     Status VARCHAR(50) NOT NULL DEFAULT 'Available' CHECK (Status IN ('Available', 'Reserved', 'Occupied', 'Maintenance')),
-    IsDeleted INT NOT NULL DEFAULT 0,
+    IsDeleted BIT NOT NULL DEFAULT 0,
     CreatedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
     UpdatedAt DATETIME2 NOT NULL DEFAULT GETDATE()
 );

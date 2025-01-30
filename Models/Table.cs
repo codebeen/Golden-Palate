@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RRS.Models
 {
@@ -20,6 +21,9 @@ namespace RRS.Models
         public bool IsDeleted { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+
+        [NotMapped] // This property won't be mapped to the database
+        public IFormFile? TableImageFile { get; set; }
     }
 
 }
