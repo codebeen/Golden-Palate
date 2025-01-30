@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RRS.Models;
+using RRS.Models.ViewModels;
 
 namespace RRS.Data
 {
@@ -14,5 +15,6 @@ namespace RRS.Data
         public DbSet<Table> Tables { get; set; }
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Reservation> Reservations { get; set; }
+        public DbSet<ReservationDetailsViewModel> ReservationDetails { get; set; }
     }
 }

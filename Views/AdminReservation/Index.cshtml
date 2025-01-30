@@ -1,23 +1,18 @@
-﻿@model IEnumerable<RRS.Models.Reservation>
+﻿@model IEnumerable<RRS.Models.ViewModels.ReservationDetailsViewModel>
+
 @{
     ViewData["Title"] = "Reservations";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-
 
 <div class="text-left mb-2 d-flex align-items-center justify-content-between">
     <div>
         <h1 class="fs-4">Reservations</h1>
         <p class="text-secondary">List of all reservations.</p>
     </div>
-
-    @* <button type="button" class="btn btn-warning" data-bs-toggle="" data-bs-target=""> *@
-    @*     <i class="fa-solid fa-download"></i>  Export CSV *@
-    @* </button> *@
 </div>
 
 <script>
-
     $(document).ready(function () {
         new DataTable('#reservationTable');
     });
@@ -25,36 +20,36 @@
     @if (TempData["SuccessMessage"] != null)
     {
         <text>
-                    Swal.fire({
-                        title: 'Success!',
-                        text: '@TempData["SuccessMessage"]',
-                        icon: 'success',
-                        confirmButtonText: 'OK'
-                     });
+                Swal.fire({
+                    title: 'Success!',
+                text: '@TempData["SuccessMessage"]',
+                icon: 'success',
+                confirmButtonText: 'OK'
+                             });
         </text>
     }
 
     @if (TempData["InformationMessage"] != null)
     {
         <text>
-                    Swal.fire({
-                        title: 'Information!',
-                    text: '@TempData["InformationMessage"]',
-                    icon: 'info',
-                    confirmButtonText: 'OK'
-                             });
+                Swal.fire({
+                    title: 'Information!',
+                text: '@TempData["InformationMessage"]',
+                icon: 'info',
+                confirmButtonText: 'OK'
+                                     });
         </text>
     }
 
     @if (TempData["ErrorMessage"] != null)
     {
         <text>
-                    Swal.fire({
-                        title: 'Error!',
-                        text: '@TempData["ErrorMessage"]',
-                        icon: 'error',
-                        confirmButtonText: 'OK'
-                    });
+                Swal.fire({
+                    title: 'Error!',
+                text: '@TempData["ErrorMessage"]',
+                icon: 'error',
+                confirmButtonText: 'OK'
+                            });
         </text>
     }
 </script>
@@ -81,15 +76,15 @@
                     @foreach (var reservation in Model)
                     {
                         <tr>
-                            <td>@(reservation.Customer.FirstName + " " + reservation.Customer.LastName)</td>
+                            <td>@reservation.CustomerFullName</td>
                             <td>@reservation.ReservationDate.ToString("MMMM dd, yyyy")</td>
                             <td>@reservation.ReservationTime.ToString("hh:mm tt")</td>
-                            <td>@reservation.Table.TableNumber</td>
+                            <td>@reservation.TableNumber</td>
                             <td class="hidden-xs hidden-sm">@reservation.BuffetType</td>
                             <td class="hidden-xs hidden-sm">₱@reservation.TotalPrice</td>
-                            <td class="hidden-xs hidden-sm">@reservation.SpecialRequest</td>
+                            <td class="hidden-xs hidden-sm">@reservation.SpecialRequest ?? "No Special Request"</td>
                             <td>
-                                @switch (reservation.Status)
+                                @switch (reservation.ReservationStatus.ToLower())
                                 {
                                     case "pending":
                                         <span class="text-warning">Pending</span>
@@ -100,7 +95,7 @@
                                     case "cancelled":
                                         <span class="text-danger">Cancelled</span>
                                         break;
-                                    case "ompleted":
+                                    case "completed":
                                         <span class="text-success">Completed</span>
                                         break;
                                     default:
@@ -112,7 +107,7 @@
                                 <button type="button" class="btn btn-info btn-sm rounded px-3 py-1" data-bs-toggle="modal" data-bs-target="#viewDetails-@reservation.Id" data-url="@Url.Action($"ViewDetails/{reservation.Id}")">
                                     View
                                 </button>
-                                @await Html.PartialAsync("ReservationDetails", reservation)
+                                @await Html.PartialAsync("ReservationDetails")
                             </td>
                         </tr>
                     }
@@ -121,7 +116,6 @@
         </div>
     </div>
 </div>
-
 
 <!-- Scroll to Top Button -->
 <a class="scroll-to-top rounded" href="#page-top">

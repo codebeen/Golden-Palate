@@ -1,0 +1,83 @@
+﻿@{
+    ViewData["Title"] = "Select Buffet";
+    Layout = "~/Views/Shared/_CustomerLayout.cshtml";
+}
+
+<div class="container d-flex flex-column align-items-center justify-content-center">
+    <div class="text-center">
+        <h1>Select Buffet</h1>
+        <p>Select a buffet to reserve.</p>
+    </div>
+
+    <div class="row">
+        <!-- Breakfast Buffet -->
+        <div class="col-sm-4 mb-4">
+            <div class="card" style="width: 18rem;">
+                <!-- Image display (check if ImagePath is not null) -->
+                <img src="~/images/breakfast_buffet.jpg" class="card-img-top" alt="Buffet Image">
+                <div class="card-body">
+                    <h5 class="card-title">Breakfast Buffet</h5>
+                    <p class="card-text">Price: ₱1680.00</p>
+                    <p class="card-text">A selection of morning favorites including eggs, pastries, fruits, and beverages.</p>
+                    <a asp-action="DisplayTablesForBreakfastBuffet" asp-controller="CustomerReservation" class="btn btn-primary w-100">Select</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lunch Buffet -->
+        <div class="col-sm-4 mb-4">
+            <div class="card" style="width: 18rem;">
+                <!-- Image display (check if ImagePath is not null) -->
+                <img src="~/images/lunch_buffet.jpg" class="card-img-top" alt="Buffet Image">
+                <div class="card-body">
+                    <h5 class="card-title">Lunch Buffet</h5>
+                    <p class="card-text">Price: ₱2800.00</p>
+                    <p class="card-text">A variety of savory dishes with meats, vegetables, salads, and desserts.</p>
+                    <a asp-action="DisplayTablesForLunchBuffet" asp-controller="CustomerReservation" class="btn btn-primary w-100">Select</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dinner Buffet -->
+        <div class="col-sm-4 mb-4">
+            <div class="card" style="width: 18rem;">
+                <!-- Image display (check if ImagePath is not null) -->
+                <img src="~/images/lunch_buffet.jpg" class="card-img-top" alt="Buffet Image">
+                <div class="card-body">
+                    <h5 class="card-title">Dinner Buffet</h5>
+                    <p class="card-text">Price: ₱4200.00</p>
+                    <p class="card-text">An assortment of dinner options with entrees, sides, and specialty dishes.</p>
+                    <a asp-action="DisplayTablesForDinnerBuffet" asp-controller="CustomerReservation" class="btn btn-primary w-100">Select</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <text>
+                    Swal.fire({
+                        title: 'Success!',
+                    text: '@TempData["SuccessMessage"]',
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                                                    });
+            </text>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <text>
+                    Swal.fire({
+                        title: 'Error!',
+                    text: '@TempData["ErrorMessage"]',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                                                    });
+            </text>
+        }
+    </script>
+}

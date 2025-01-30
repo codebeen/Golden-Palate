@@ -1,0 +1,101 @@
+﻿@{
+    ViewData["Title"] = "MyReservation";
+    Layout = "~/Views/Shared/_CustomerAccountLayout.cshtml";
+}
+
+<div class="container mt-5">
+    <h2 class="text-center" style="font-family:'Poppins',sans-serif; font-weight:bold;">My Reservation</h2>
+    <p style="font-family:'Poppins',sans-serif; text-align:center;">Take a look at your reservation history!</p>
+
+    <!-- Table -->
+    <div class="table-responsive mt-4" style="border-radius:26px; padding:10px;">
+        <table class="table table-bordered table-hover">
+            <thead class="" style="background-color:darkgoldenrod;">
+                <tr>
+                    <th scope="col">
+                        <a href="#" class="text-light text-decoration-none" id="header1">
+                            Upcoming
+                        </a>
+                    </th>
+                    <th scope="col">
+                        <a href="#" class="text-light text-decoration-none" id="header2">
+                            Completed
+                        </a>
+                    </th>
+                    <th scope="col">
+                        <a href="#" class="text-light text-decoration-none" id="header3">
+                            Cancelled
+                        </a>
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="table1" class="table-content">
+                <tr>
+                    <td>Reservation 1</td>
+                    <td>Customer A</td>
+                    <td>Paid</td>
+                </tr>
+                <tr>
+                    <td>Reservation 2</td>
+                    <td>Customer B</td>
+                    <td>Pending</td>
+                </tr>
+                <tr>
+                    <td>Reservation 3</td>
+                    <td>Customer C</td>
+                    <td>Paid</td>
+                </tr>
+            </tbody>
+            <tbody id="table2" class="table-content d-none">
+                <tr>
+                    <td>John Doe</td>
+                    <td>john.doe@example.com</td>
+                    <td>123-456-7890</td>
+                </tr>
+                <tr>
+                    <td>Jane Smith</td>
+                    <td>jane.smith@example.com</td>
+                    <td>987-654-3210</td>
+                </tr>
+            </tbody>
+            <tbody id="table3" class="table-content d-none">
+                <tr>
+                    <td>Payment 1</td>
+                    <td>$100</td>
+                    <td>Success</td>
+                </tr>
+                <tr>
+                    <td>Payment 2</td>
+                    <td>$200</td>
+                    <td>Pending</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-end">
+            <li class="page-item"><a class="page-link" href="#">Previous</a></li>
+            <li class="page-item"><a class="page-link" href="#">1</a></li>
+            <li class="page-item"><a class="page-link" href="#">2</a></li>
+            <li class="page-item"><a class="page-link" href="#">3</a></li>
+            <li class="page-item"><a class="page-link" href="#">Next</a></li>
+        </ul>
+    </nav>
+</div>
+
+
+
+<script>
+    // JavaScript to navigate between tables
+    function navigateTable(tableId) {
+        // Hide all tables
+        document.querySelectorAll('.table-content').forEach((table) => {
+            table.classList.add('d-none');
+        });
+
+        // Show the selected table
+        document.getElementById(tableId).classList.remove('d-none');
+    }
+</script>

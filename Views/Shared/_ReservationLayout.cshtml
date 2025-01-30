@@ -26,6 +26,7 @@
     <script src="https://cdn.datatables.net/2.2.1/js/dataTables.bootstrap5.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="~/js/navbar.js" defer></script>
+    <script src="~/js/selectDateTime.js" defer></script>
 
 
     <!-- Flatpickr -->
@@ -37,36 +38,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Dancing+Script:wght@400..700&family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&family=Playwrite+TZ+Guides&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
 
 </head>
-<body class="bg-light">
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand fw-bold text-warning" asp-area="" asp-controller="CustomerReservation" asp-action="Home">Golden Palate</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="CustomerReservation" asp-action="Home">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="CustomerReservation" asp-action="MyReservations">My Reservations</a>
-                        </li>
-                    </ul>
+<body class="bg-light h-100">
 
-                    <div class="d-flex gap-2 align-items-center justify-content-end">
-                        <a class="nav-link text-dark btn btn-info" asp-area="" asp-controller="CustomerReservation" asp-action="DisplayBuffets">Reserve a Table</a>
-                        <a class="nav-link text-dark btn btn-warning" asp-area="" asp-controller="" asp-action="">Logout</a>
-                    </div>
+    <div class="container my-5">
 
-                </div>
-            </div>
-        </nav>
-    </header>
-
-    <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>

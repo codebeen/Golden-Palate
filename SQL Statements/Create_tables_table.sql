@@ -1,6 +1,6 @@
 CREATE TABLE Tables (
     Id INT IDENTITY(1,1) PRIMARY KEY,
-    TableNumber INT NOT NULL,
+    TableNumber INT NOT NULL UNIQUE,
     Description VARCHAR(MAX) NULL,
     SeatingCapacity INT NOT NULL,
     TableLocation VARCHAR(100) NOT NULL CHECK (TableLocation IN ('Window seat', 'Outdoor', 'Indoor')),
