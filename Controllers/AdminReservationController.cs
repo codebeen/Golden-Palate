@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RRS.Data;
+using RRS.Models.ViewModels;
 
 namespace RRS.Controllers
 {
@@ -21,6 +22,18 @@ namespace RRS.Controllers
             return View("Index", reservationDetails);  // Ensure it's IEnumerable<ReservationDetails>
         }
 
+        public IActionResult ViewReservationDetails(int id)
+        {
+            var getSpecificReservation = context.ReservationDetails.FromSqlRaw($"GetReservationDetailsById {id}").AsEnumerable().FirstOrDefault();
 
+            if (getSpecificReservation != null)
+            {
+                TempData["ErrorMessage"] = "Reservation not found";
+
+                return RedirectToAction("Index");
+            }
+
+            return PartialView("ReservationDetails", getSpecificReservation);
+        }
     }
 }

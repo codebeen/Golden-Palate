@@ -1,4 +1,4 @@
-CREATE PROCEDURE CreateReservation
+Alter PROCEDURE CreateReservation
     @ReservationDate DATE,
     @ReservationTime TIME,
     @TotalPrice DECIMAL(10,2),

@@ -1,10 +1,10 @@
-﻿@model RRS.Models.ViewModels.AdminDashboardViewModel
+﻿@model RRS.Models.ViewModels.DashboardViewModel
 @using Newtonsoft.Json
 
 
 @{
     ViewData["Title"] = "Dashboard";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Views/Shared/_StaffLayout.cshtml";
 
     // Serialize data using JsonConvert for chart rendering
     var reservationsByDayJson = JsonConvert.SerializeObject(ViewBag.ReservationsByDay ?? new Dictionary<string, int>());
@@ -114,7 +114,7 @@
                     <div class="row align-items-center">
                         <!-- Icon Column -->
                         <div class="col-auto text-center">
-                            <div class="icon-big text-danger">
+                            <div class="icon-big text-info">
                                 <i class="fa-solid fa-calendar-days"></i>
                             </div>
                         </div>
@@ -122,69 +122,6 @@
                         <div class="col ">
                             <p class="mb-0 fw-bold text-secondary">Cancelled Reservations</p>
                             <h5 class="mb-0">@Model.counOfCancelledReservation</h5>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Total Tables -->
-        <div class="col-lg-3 col-sm-6 mb-2">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <!-- Icon Column -->
-                        <div class="col-auto text-center">
-                            <div class="icon-big text-info">
-                                <i class="fa-solid fa-chair"></i>
-                            </div>
-                        </div>
-                        <!-- Text and Number Column -->
-                        <div class="col ">
-                            <p class="mb-0 fw-bold text-secondary">Available Tables</p>
-                            <h5 class="mb-0">@Model.availableTables</h5>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Total Tables -->
-        <div class="col-lg-3 col-sm-6 mb-2">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <!-- Icon Column -->
-                        <div class="col-auto text-center">
-                            <div class="icon-big text-info">
-                                <i class="fa-solid fa-calendar-days"></i>
-                            </div>
-                        </div>
-                        <!-- Text and Number Column -->
-                        <div class="col ">
-                            <p class="mb-0 fw-bold text-secondary">Total Reservations</p>
-                            <h5 class="mb-0">@Model.totalReservations</h5>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Total Tables -->
-        <div class="col-lg-3 col-sm-6 mb-2">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <!-- Icon Column -->
-                        <div class="col-auto text-center">
-                            <div class="icon-big text-info">
-                                <i class="fa-solid fa-chair"></i>
-                            </div>
-                        </div>
-                        <!-- Text and Number Column -->
-                        <div class="col ">
-                            <p class="mb-0 fw-bold text-secondary">Total Tables</p>
-                            <h5 class="mb-0">@Model.totalTables</h5>
                         </div>
                     </div>
                 </div>
@@ -257,29 +194,24 @@
 
 
 <style>
-        .icon-big {
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            padding: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+    .icon-big {
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        padding: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .icon-big.text-info {
+            background-color: rgba(0, 191, 255, 0.20);
+            color: white;
         }
 
-            .icon-big.text-info {
-                background-color: rgba(0, 191, 255, 0.20);
-                color: white;
-            }
-
-            .icon-big.text-danger {
-                background-color: rgba(255, 0, 0, 0.20); /* Light red background */
-                color: white; /* White text for contrast */
-            }
-
-            .icon-big.text-success {
-                background-color: rgba(34, 193, 34, 0.20);
-                color: white;
-            }
+        .icon-big.text-success {
+            background-color: rgba(34, 193, 34, 0.20);
+            color: white;
+        }
 </style>
 

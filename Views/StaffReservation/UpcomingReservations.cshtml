@@ -1,15 +1,24 @@
 ﻿@model IEnumerable<RRS.Models.ViewModels.ReservationDetailsViewModel>
 
 @{
-    ViewData["Title"] = "Reservations";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Staff-Reservations";
+    Layout = "~/Views/Shared/_StaffLayout.cshtml";
 }
 
 <div class="text-left mb-2 d-flex align-items-center justify-content-between">
     <div>
-        <h1 class="fs-4">Reservations</h1>
-        <p class="text-secondary">List of all reservations.</p>
+        <h1 class="fs-4">Upcoming Reservations</h1>
+        <p class="text-secondary">List of all upcoming reservations.</p>
     </div>
+</div>
+
+<div class="container d-flex align-items-center justify-content-start gap-3 my-3">
+    <a class="btn btn-outline-dark p-2" asp-action="Index" asp-controller="StaffReservation">All Reservations</a>
+    <a class="btn btn-outline-dark p-2" asp-action="GetUpcomingReservations" asp-controller="StaffReservation">Upcoming Reservations</a>
+    <a class="btn btn-outline-dark p-2" asp-action="GetTodaysReservations" asp-controller="StaffReservation">Today's Reservations</a>
+    <a class="btn btn-outline-dark p-2" asp-action="GetOngoingReservations" asp-controller="StaffReservation">Ongoing Reservations</a>
+    <a class="btn btn-outline-dark p-2" asp-action="GetCompletedReservations" asp-controller="StaffReservation">Completed Reservations</a>
+    <a class="btn btn-outline-dark p-2" asp-action="GetCancelledReservations" asp-controller="StaffReservation">Cancelled Reservations</a>
 </div>
 
 <script>
@@ -25,7 +34,7 @@
                 text: '@TempData["SuccessMessage"]',
                 icon: 'success',
                 confirmButtonText: 'OK'
-                             });
+                                                 });
         </text>
     }
 
@@ -37,7 +46,7 @@
                 text: '@TempData["InformationMessage"]',
                 icon: 'info',
                 confirmButtonText: 'OK'
-                                     });
+                                                         });
         </text>
     }
 
@@ -49,7 +58,7 @@
                 text: '@TempData["ErrorMessage"]',
                 icon: 'error',
                 confirmButtonText: 'OK'
-                            });
+                                                });
         </text>
     }
 </script>
@@ -104,10 +113,32 @@
                                 }
                             </td>
                             <td class="d-flex justify-content-center gap-2">
-                                <button type="button" class="btn btn-info btn-sm rounded px-3 py-1" data-bs-toggle="modal" data-bs-target="#viewDetails-@reservation.Id" data-url="@Url.Action($"ViewReservationDetails/{reservation.Id}")">
+                                <button type="button" class="btn btn-info btn-sm rounded px-3 py-1" data-bs-toggle="modal" data-bs-target="#staffViewDetails-@reservation.Id" data-url="@Url.Action($"ViewReservationDetailsStaff/{reservation.Id}")">
                                     View
                                 </button>
                                 @await Html.PartialAsync("ReservationDetails", reservation)
+
+                                <!--Button to start the reservation -->
+                                @if (reservation.ReservationStatus.ToLower() == "pending")
+                                {
+                                    <form method="post" asp-action="StartReservation" asp-controller="StaffReservation">
+                                        <input type="hidden" name="reservationId" value="@reservation.Id" />
+                                        <button type="submit" class="btn btn-warning btn-sm rounded px-3 py-1">
+                                            Start
+                                        </button>
+                                    </form>
+                                }
+
+                                <!-- Button to complete the reservation -->
+                                @if (reservation.ReservationStatus.ToLower() == "ongoing")
+                                {
+                                    <form method="post" asp-action="CompleteReservation" asp-controller="StaffReservation">
+                                        <input type="hidden" name="reservationId" value="@reservation.Id" />
+                                        <button type="submit" class="btn btn-success btn-sm rounded px-3 py-1">
+                                            Complete
+                                        </button>
+                                    </form>
+                                }
                             </td>
                         </tr>
                     }

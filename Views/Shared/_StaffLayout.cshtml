@@ -37,22 +37,18 @@
     <div class="l-navbar" id="nav-bar">
         <nav class="nav">
             <div>
-                <a class="nav_logo" asp-area="" asp-action="Index" asp-controller="Dashboard">
+                <a class="nav_logo" asp-area="" asp-action="Dashboard" asp-controller="StaffReservation">
                     <i class='bx bx-dish nav_logo-icon'></i>
                     <span class="nav_logo-name">Golden Palate</span>
                 </a>
+                <a class="nav_link active" asp-area="" asp-action="Dashboard" asp-controller="StaffReservation">
+                    <i class='bx bx-grid-alt nav_icon'></i>
+                    <span class="nav_name">Dashboard</span>
+                </a>
                 <div class="nav_list">
-                    <a class="nav_link active" asp-area="" asp-action="ListOfReservationsToCustomer" asp-controller="Reservation">
-                        <i class='bx bx-grid-alt nav_icon'></i>
-                        <span class="nav_name">Reservations</span>
-                    </a>
-                    <a class="nav_link" asp-area="" asp-action="StaffTable" asp-controller="StaffTable">
+                    <a class="nav_link active" asp-area="" asp-action="Index" asp-controller="StaffReservation">
                         <i class='bx bx-calendar nav_icon'></i>
-                        <span class="nav_name">Table Management</span>
-                    </a>
-                    <a class="nav_link" asp-area="" asp-action="PaymentStaff" asp-controller="Payment">
-                        <i class='bx bx-food-menu nav_icon'></i>
-                        <span class="nav_name">Payments</span>
+                        <span class="nav_name">Reservations</span>
                     </a>
                 </div>
             </div>
