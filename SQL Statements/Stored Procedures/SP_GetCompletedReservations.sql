@@ -14,5 +14,5 @@ BEGIN
     FROM 
         ReservationDetails
     WHERE 
-        ReservationDate < GETDATE() AND ReservationStatus = 'Completed';
+        ReservationStatus = 'Completed';
 END;
