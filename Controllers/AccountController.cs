@@ -74,7 +74,7 @@ namespace RRS.Controllers
 				}
 				else if (role == "Staff")
 				{
-					return RedirectToAction("Index", "Home"); // Correct way to redirect
+					return RedirectToAction("Dashboard", "StaffReservation"); // Correct way to redirect
 				}
 			}
 
