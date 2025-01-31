@@ -1,4 +1,6 @@
-﻿@{
+﻿@model User
+
+@{
     ViewData["Title"] = "Register";
     Layout = "~/Views/Shared/_AccountLayout.cshtml";
 }
@@ -18,45 +20,46 @@
     </div>
     <div class="w-50 card bg-glass col-lg-6 mb-5 mb-lg-0" style="opacity:75%; margin-top:10%; margin-left:5%;">
         <div class="card-body px-4 py-5 px-md-5">
-            <form>
+            <form asp-action="RegisterUser" asp-controller="Account" method="post">
                 <div class="row">
                     <div class="col-md-6 mb-4">
                         <div data-mdb-input-init class="form-outline">
-                            <label class="form-label" for="form3Example1">
+                            <label class="form-label" for="FirstName">
                                 First name
                                 <span style="color:red;">*</span>
                             </label>
-                            <input style="border-radius:20px;" type="text" id="form3Example1" class="form-control" />
+                            <input asp-for="FirstName" required style="border-radius:20px;" type="text" id="FirstName" class="form-control" />
                         </div>
                     </div>
                     <div class="col-md-6 mb-4">
                         <div data-mdb-input-init class="form-outline">
-                            <label class="form-label" for="form3Example2">
+                            <label class="form-label" for="LastName">
                                 Last name
                                 <span style="color:red;">*</span>
                             </label>
-                            <input style="border-radius:20px;" type="text" id="form3Example2" class="form-control" />
+                            <input asp-for="LastName" required style="border-radius:20px;" type="text" id="LastName" class="form-control" />
                         </div>
                     </div>
                 </div>
 
                 <!-- Email input -->
                 <div data-mdb-input-init class="form-outline mb-4">
-                    <label class="form-label" for="form3Example3">
+                    <label class="form-label" for="Email">
                         Email address
                         <span style="color: red;">*</span>
                     </label>
-                    <input type="email" id="form3Example3" class="form-control" style="border-radius:20px;" />
+                    <input asp-for="Email" required type="email" id="Email" class="form-control" style="border-radius:20px;" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
                 </div>
 
                 <!-- Password input -->
                 <div data-mdb-input-init class="form-outline mb-4">
-                    <label class="form-label" for="form3Example4">
+                    <label class="form-label" for="Password">
                         Password
                         <span style="color:red">*</span>
                     </label>
                     <div style="position: relative;">
-                        <input type="password" id="form3Example4" class="form-control" style="border-radius:20px; padding-right: 40px;" />
+                        <input asp-for="Password" required type="password" id="Password" class="form-control" style="border-radius:20px; padding-right: 40px;" />
 
                         <!-- Hidden Checkbox for Show Password -->
                         <input type="checkbox" id="showPassword" onclick="togglePassword()" style="display: none;" />

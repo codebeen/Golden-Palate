@@ -4,7 +4,7 @@ CREATE TABLE Users (
     LastName VARCHAR(100) NOT NULL,
     Email VARCHAR(255) NOT NULL,
     Password VARCHAR(255) NOT NULL,
-    Role VARCHAR(50) NOT NULL DEFAULT 'Customer' CHECK (Role IN ('Customer', 'Staff', 'Admin')),
+    Role VARCHAR(50) NOT NULL DEFAULT 'Staff' CHECK (Role IN ('Customer', 'Staff', 'Admin')),
     IsDeleted BIT NOT NULL DEFAULT 0,
     CreatedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
     UpdatedAt DATETIME2 NOT NULL DEFAULT GETDATE()
