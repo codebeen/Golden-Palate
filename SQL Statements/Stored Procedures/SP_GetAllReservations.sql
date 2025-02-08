@@ -1,6 +1,6 @@
 CREATE PROCEDURE GetAllReservations
 AS
 BEGIN
-    SELECT Id, ReservationDate, ReservationTime, TotalPrice, BuffetTypeId, SpecialRequest, Status, TableId, CustomerId, CreatedAt, UpdatedAt
+    SELECT Id, ReservationDate, TotalPrice, BuffetType, SpecialRequest, Status, TableId, CustomerId, CreatedAt, UpdatedAt
     FROM Reservations;
 END;

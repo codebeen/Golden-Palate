@@ -1,0 +1,160 @@
+﻿@model RRS.Models.ViewModels.TableViewModel
+
+@{
+    ViewData["Title"] = "Reserve a Table";
+    Layout = "~/Views/Shared/_ReservationLayout.cshtml";
+}
+
+<div class="d-flex align-items-center w-100 position-relative">
+    <div class="position-absolute start-0">
+        <a asp-controller="CustomerReservation" asp-action="DisplayBuffets" class="btn btn-outline-secondary">
+            ← Back
+        </a>
+    </div>
+    <div class="w-100 text-center">
+        <h1>Reserve a Table for @Model.BuffetName Buffet</h1>
+    </div>
+</div>
+
+<div class="text-center mb-2">
+    <p class="text-secondary"> @TempData["BuffetDetails"] </p>
+    <p class="text-secondary">Choose a table and set your reservation details.</p>
+</div>
+
+<div class="d-flex align-items-center justify-content-center flex-wrap gap-3 mt-3 mb-4">
+    <div class="form-group w-20">
+        <label for="datepicker" class="form-label">Select a date <span class="text-danger">*</span></label>
+        <input type="text" id="datepicker" class="form-control bg-light"
+               placeholder="Select date"
+               value="@((TempData["SelectedDate"] != null) ? TempData["SelectedDate"] : "")">
+    </div>
+
+
+@*
+    <div class="form-group w-20">
+    <label for="numberOfGuest" class="form-label">Select seating capacity</label>
+    <!--Dropdown input for number of guest 1 to 10-->
+    <select class="form-select" id="numberOfGuest">
+    <option value="1">1 person</option>
+    <option value="2">2 persons</option>
+    <option value="3">3 persons</option>
+    <option value="4">4 persons</option>
+    <option value="5">5 persons</option>
+    <option value="6">6 persons</option>
+    <option value="7">7 persons</option>
+    <option value="8">8 persons</option>
+    <option value="9">9 persons</option>
+    <option value="10">10 persons</option>
+    </select>
+    </div>
+*@
+</div>
+
+<div class="container d-flex flex-wrap align-items-start justify-content-center gap-3">
+    @foreach (var table in Model.Tables)
+    {
+        bool isReserved = Model.ReservedTableIds?.Contains(table.Id) ?? false;  // Check if ReservedTableIds is null and return false if it is
+
+        <div class="card shadow-sm" style="width: 18rem; height: 30rem; display: flex; flex-direction: column;">
+            <img src="@table.TableImagePath" class="card-img-top"
+                 style="width: 100%; height: 176px; object-fit: cover;"
+                 alt="Table Image">
+
+            <div class="card-body d-flex flex-column flex-grow-1">
+                <h5 class="card-title">Table Number: @table.TableNumber</h5>
+                <p class="card-text text-secondary">Price - ₱@table.Price</p>
+                <p class="card-text text-secondary">
+                    Table for @table.SeatingCapacity @(table.SeatingCapacity == 1 ? "person" : "persons")
+                </p>
+                <p class="card-text text-secondary">Location - @table.TableLocation</p>
+                <p class="card-text">@table.Description</p>
+
+                <button type="button" class="btn w-100 mt-auto @(isReserved ? "btn-secondary disabled" : "btn-primary")"
+                @(isReserved ? "disabled" : "")
+                        onclick="submitReservation(@table.Id, @table.TableNumber, @table.Price, '@Model.BuffetName', @Model.BuffetPrice, @table.SeatingCapacity)">
+                    @(isReserved ? "Reserved" : "Reserve Now")
+                </button>
+            </div>
+        </div>
+    }
+</div>
+
+
+<form id="reservationForm" asp-action="DisplayReservationForm" asp-controller="CustomerReservation" method="post" style="display:none;">
+    <input type="hidden" id="formTableId" name="tableId" />
+    <input type="hidden" id="formTableNumber" name="tableNumber" />
+    <input type="hidden" id="formSeatingCapacity" name="seatingCapacity" />
+    <input type="hidden" id="formPrice" name="price" />
+    <input type="hidden" id="formDate" name="date" />
+    <input type="hidden" id="formBuffetPrice" name="buffetPrice" />
+    <input type="hidden" id="formBuffetType" name="buffetType" />
+</form>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#datepicker').datepicker({
+                dateFormat: 'yy-mm-dd',
+                minDate: 0,
+                maxDate: "+1Y",
+                defaultDate: new Date(),
+                onSelect: function (dateText) {
+                    // Add the selected date and buffet name to the URL
+                    var buffetName = '@Model.BuffetName'; // Pass the buffet name from the model
+
+                    // Redirect to the ReserveTable action with the selected date and buffet name
+                    window.location.href = '@Url.Action("ReserveTable", "CustomerReservation")' + '?selectedDate=' + dateText + '&buffetType=' + buffetName;
+                }
+            });
+        });
+
+        function submitReservation(tableId, tableNumber, price, buffetName, buffetPrice, buffetType, seatingCapacity) {
+            const date = document.getElementById("datepicker").value;
+
+            if (!date) {
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Please select a date for your reservation.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+                return;
+            }
+
+
+            document.getElementById("formTableId").value = tableId;
+            document.getElementById("formTableNumber").value = tableNumber;
+            document.getElementById("formDate").value = date;
+            document.getElementById("formPrice").value = price;
+            document.getElementById("formBuffetPrice").value = buffetPrice;
+            document.getElementById("formBuffetType").value = buffetName;
+            document.getElementById("formSeatingCapacity").value = seatingCapacity;
+
+            document.getElementById("reservationForm").submit();
+        }
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <text>
+                Swal.fire({
+                    title: 'Success!',
+                    text: '@TempData["SuccessMessage"]',
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                });
+            </text>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <text>
+                Swal.fire({
+                    title: 'Error!',
+                    text: '@TempData["ErrorMessage"]',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            </text>
+        }
+    </script>
+}

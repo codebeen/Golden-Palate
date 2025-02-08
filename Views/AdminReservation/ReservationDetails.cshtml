@@ -13,7 +13,18 @@
             <div class="modal-body">
                 <p><strong>Customer Name:</strong> @Model.CustomerFullName</p>
                 <p><strong>Date:</strong> @Model.ReservationDate.ToString("MMMM dd, yyyy")</p>
-                <p><strong>Time:</strong> @Model.ReservationTime.ToString("hh:mm tt")</p>
+                @if (Model.BuffetType.ToLower() == "breakfast")
+                {
+                    <p><strong>Time:</strong> 8:00 AM - 10:30 AM</p>
+                }
+                @if (Model.BuffetType.ToLower() == "lunch")
+                {
+                    <p><strong>Time:</strong> 11:30 AM - 2:30 PM</p>
+                }
+                @if (Model.BuffetType.ToLower() == "dinner")
+                {
+                    <p><strong>Time:</strong> 5:00 PM - 8:00 PM</p>
+                }
                 <p><strong>Table Number:</strong> @Model.TableNumber</p>
                 <p><strong>Buffet Type:</strong> @Model.BuffetType</p>
                 <p><strong>Total Price:</strong> ₱@Model.TotalPrice</p>

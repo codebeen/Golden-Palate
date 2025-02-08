@@ -2,7 +2,6 @@ Create VIEW ReservationDetails AS
 SELECT 
 	r.Id,
     r.ReservationDate,
-    r.ReservationTime,
     r.TotalPrice,
     t.TableNumber,
     CONCAT(c.FirstName, ' ', c.LastName) AS CustomerFullName,
@@ -10,8 +9,8 @@ SELECT
     r.SpecialRequest,     
     r.Status AS ReservationStatus
 FROM 
-    Reservations r
+    Reservations AS r
 JOIN 
-    Tables t ON r.TableId = t.Id
+    Tables AS t ON r.TableId = t.Id
 JOIN 
-    Customers c ON r.CustomerId = c.Id;
+    Customers AS c ON r.CustomerId = c.Id;

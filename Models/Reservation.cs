@@ -7,7 +7,6 @@ namespace RRS.Models
         public int Id { get; set; }
 
         public DateOnly ReservationDate { get; set; }
-        public TimeOnly ReservationTime { get; set; }
         //public string? OccasionType { get; set; }  
         [Precision(10, 2)]
         public Decimal TotalPrice { get; set; }

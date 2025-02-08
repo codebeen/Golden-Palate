@@ -10,5 +10,7 @@ namespace RRS.Models.ViewModels
         public decimal BuffetPrice { get; set; }
         public string BuffetName { get; set; }
         public List<Table> Tables { get; set; }
+
+        public List<int> ReservedTableIds { get; set; } // Store reserved table IDs
     }
 }

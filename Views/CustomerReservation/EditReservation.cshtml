@@ -78,7 +78,7 @@
 
             <div class="col-md-6 form-group">
                 <label for="lastName">Last name <span class="text-danger">*</span></label>
-                <input type="text" asp-for="Customer.LastName" id="lastName" class="form-control" placeholder="ex. Santos"/>
+                <input type="text" asp-for="Customer.LastName" id="lastName" class="form-control" placeholder="ex. Santos" />
                 <span id="lastNameError" class="text-danger"></span>
                 <span asp-asp-validation-for="Customer.LastName" class="text-danger"></span>
             </div>
@@ -87,14 +87,14 @@
         <div class="row">
             <div class="col-md-6 form-group">
                 <label for="email">Email address <span class="text-danger">*</span></label>
-                <input type="email" asp-for="Customer.Email" id="email" class="form-control" placeholder="juansantos@email.com"/>
+                <input type="email" asp-for="Customer.Email" id="email" class="form-control" placeholder="juansantos@email.com" />
                 <span id="emailError" class="text-danger"></span>
                 <span asp-asp-validation-for="Customer.Email" class="text-danger"></span>
             </div>
 
             <div class="col-md-6 form-group">
                 <label for="phoneNumber">Phone Number <span class="text-danger">*</span></label>
-                <input type="text" asp-for="Customer.PhoneNumber" id="phoneNumber" class="form-control" placeholder="09123456789"/>
+                <input type="text" asp-for="Customer.PhoneNumber" id="phoneNumber" class="form-control" placeholder="09123456789" />
                 <span id="phoneNumberError" class="text-danger"></span>
                 <span asp-asp-validation-for="Customer.PhoneNumber" class="text-danger"></span>
             </div>
@@ -155,13 +155,13 @@
             Swal.fire({
                 title: 'Terms and Condition',
                 html: `
-                            <p><b>Late Arrival:</b><br>
-                            Please arrive on time for your reservation. If you are running late, please inform us as soon as possible. If you arrive late, we may need to adjust your seating time to accommodate other reservations.</p>
-                            <p><b>Cancellation Policy:</b><br><br>
-                            <p><b>No-shows:</b>  If you do not show up for your reservation within 20 minutes of your scheduled time, your reservation will automatically be cancelled, and the table may be given to other guests.</p><br>
-                            <p><b>To modify your reservation:</b><br>
-                            Please contact us at least 24 hours in advance. We will do our best to accommodate your request, but please note that modifications may not always be possible.</p>
-                        `,
+                                    <p><b>Late Arrival:</b><br>
+                                    Please arrive on time for your reservation. If you are running late, please inform us as soon as possible. If you arrive late, we may need to adjust your seating time to accommodate other reservations.</p>
+                                    <p><b>Cancellation Policy:</b><br><br>
+                                    <p><b>No-shows:</b>  If you do not show up for your reservation within 20 minutes of your scheduled time, your reservation will automatically be cancelled, and the table may be given to other guests.</p><br>
+                                    <p><b>To modify your reservation:</b><br>
+                                    Please contact us at least 24 hours in advance. We will do our best to accommodate your request, but please note that modifications may not always be possible.</p>
+                                `,
                 icon: 'info',
                 confirmButtonText: 'I understand, continue',
                 showCancelButton: true,
@@ -192,18 +192,18 @@
 
             // Prepare reservation summary
             const reservationSummary = `
-                        <div style="text-align: left; font-size: 16px; line-height: 1.8;">
-                            <b>Table Number:</b> ${tableNumber}<br>
-                            <b>Total Price:</b> ${totalPrice}<br>
-                            <b>Reservation Date:</b> ${reservationDate}<br>
-                            <b>Seating Capacity:</b> ${seatingCapacity}<br>
-                            <b>Full Name:</b> ${firstName} ${lastName}<br>
-                            <b>Email:</b> ${email}<br>
-                            <b>Phone Number:</b> ${phoneNumber}<br>
-                            <b>Buffet Type:</b> ${buffetType || "None"}<br>
-                            <b>Special Request:</b> ${specialRequest || "None"}
-                        </div>
-                    `;
+                                <div style="text-align: left; font-size: 16px; line-height: 1.8;">
+                                    <b>Table Number:</b> ${tableNumber}<br>
+                                    <b>Total Price:</b> ${totalPrice}<br>
+                                    <b>Reservation Date:</b> ${reservationDate}<br>
+                                    <b>Seating Capacity:</b> ${seatingCapacity}<br>
+                                    <b>Full Name:</b> ${firstName} ${lastName}<br>
+                                    <b>Email:</b> ${email}<br>
+                                    <b>Phone Number:</b> ${phoneNumber}<br>
+                                    <b>Buffet Type:</b> ${buffetType || "None"}<br>
+                                    <b>Special Request:</b> ${specialRequest || "None"}
+                                </div>
+                            `;
 
 
             // Show the summary modal
@@ -244,7 +244,7 @@
                     text: '@TempData["ErrorMessage"]',
                     icon: 'error',
                     confirmButtonText: 'OK'
-                                });
+                                            });
             </text>
         }
     </script>

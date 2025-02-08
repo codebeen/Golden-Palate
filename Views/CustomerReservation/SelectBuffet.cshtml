@@ -1,13 +1,20 @@
 ﻿@{
     ViewData["Title"] = "Select Buffet";
-    Layout = "~/Views/Shared/_CustomerLayout.cshtml";
+    Layout = "~/Views/Shared/_ReservationLayout.cshtml";
 }
 
 <div class="container d-flex flex-column align-items-center justify-content-center">
-    <div class="text-center">
-        <h1>Select Buffet</h1>
-        <p>Select a buffet to reserve.</p>
+    <div class="d-flex align-items-center w-100 position-relative">
+        <div class="position-absolute start-0">
+            <a href="javascript:history.back()" class="btn btn-outline-secondary">
+                ← Back
+            </a>
+        </div>
+        <div class="w-100 text-center">
+            <h1>Select Buffet</h1>
+        </div>
     </div>
+    <p>Select a buffet to reserve.</p>
 
     <div class="row">
         <!-- Breakfast Buffet -->
@@ -18,6 +25,7 @@
                 <div class="card-body">
                     <h5 class="card-title">Breakfast Buffet</h5>
                     <p class="card-text">Price: ₱1680.00</p>
+                    <p class="card-text">Meal Time Period: 8:00 AM to 10:00 AM</p>
                     <p class="card-text">A selection of morning favorites including eggs, pastries, fruits, and beverages.</p>
                     <a asp-action="DisplayTablesForBreakfastBuffet" asp-controller="CustomerReservation" class="btn btn-primary w-100">Select</a>
                 </div>
@@ -32,6 +40,7 @@
                 <div class="card-body">
                     <h5 class="card-title">Lunch Buffet</h5>
                     <p class="card-text">Price: ₱2800.00</p>
+                    <p class="card-text">Meal Time Period: 11:30 AM to 2:30 PM</p>
                     <p class="card-text">A variety of savory dishes with meats, vegetables, salads, and desserts.</p>
                     <a asp-action="DisplayTablesForLunchBuffet" asp-controller="CustomerReservation" class="btn btn-primary w-100">Select</a>
                 </div>
@@ -46,6 +55,7 @@
                 <div class="card-body">
                     <h5 class="card-title">Dinner Buffet</h5>
                     <p class="card-text">Price: ₱4200.00</p>
+                    <p class="card-text">Meal Time Period: 5:00 PM to 8:00 PM</p>
                     <p class="card-text">An assortment of dinner options with entrees, sides, and specialty dishes.</p>
                     <a asp-action="DisplayTablesForDinnerBuffet" asp-controller="CustomerReservation" class="btn btn-primary w-100">Select</a>
                 </div>

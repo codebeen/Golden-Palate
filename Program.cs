@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using RRS.Data;
+using RRS.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +11,8 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Add EmailService to dependency injection
+builder.Services.AddTransient<EmailService>();
 
 var app = builder.Build();
 

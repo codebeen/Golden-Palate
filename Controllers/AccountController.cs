@@ -140,8 +140,8 @@ namespace RRS.Controllers
 				_logger.LogInformation("Password hashed successfully.");
 
 				// Execute stored procedure
-				int result = _context.Database.ExecuteSqlRaw("EXEC RegisterUser @p0, @p1, @p2, @p3, @p4",
-					user.FirstName, user.LastName, user.Email, user.Password, user.Role);
+				int result = _context.Database.ExecuteSqlRaw("EXEC RegisterUser @p0, @p1, @p2, @p3",
+					user.FirstName, user.LastName, user.Email, user.Password);
 
 				_logger.LogInformation("Stored procedure executed, affected rows: {Result}", result);
 

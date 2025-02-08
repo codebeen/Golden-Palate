@@ -4,7 +4,6 @@ BEGIN
     SELECT 
 		Id,
         ReservationDate,
-        ReservationTime,
         TotalPrice,
         TableNumber,
         CustomerFullName,

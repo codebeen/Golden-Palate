@@ -156,7 +156,18 @@
                                 <tr>
                                     <td>@reservation.CustomerFullName</td>
                                     <td>@reservation.ReservationDate.ToString("MMMM dd, yyyy")</td>
-                                    <td>@reservation.ReservationTime.ToString("hh:mm tt")</td>
+                                    @if (reservation.BuffetType.ToLower() == "breakfast")
+                                    {
+                                        <td>8:00 AM - 10:30 AM</td>
+                                    }
+                                    @if (reservation.BuffetType.ToLower() == "lunch")
+                                    {
+                                        <td>11:30 AM - 2:30 PM</td>
+                                    }
+                                    @if (reservation.BuffetType.ToLower() == "dinner")
+                                    {
+                                        <td>5:00 PM - 8:00 PM</td>
+                                    }
                                     <td>@reservation.TableNumber</td>
                                     <td class="hidden-xs hidden-sm">@reservation.BuffetType</td>
                                     <td class="hidden-xs hidden-sm">₱@reservation.TotalPrice</td>

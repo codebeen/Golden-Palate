@@ -139,6 +139,7 @@ namespace RRS.Controllers
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 TempData["ErrorMessage"] = "Table not found.";
                 return RedirectToAction("Index");
             }
@@ -255,6 +256,7 @@ namespace RRS.Controllers
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 TempData["ErrorMessage"] = "Table not found.";
                 return RedirectToAction("Index");
             }
