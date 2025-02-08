@@ -58,14 +58,14 @@ namespace RRS.Controllers
 			{
 				_logger.LogInformation("Logged in");
 				// Login successful, store the role and other user data if necessary
-				TempData["SuccessMessage"] = "Login successful!";
+				//TempData["SuccessMessage"] = "Login successful!";
 
-				// Optionally, you can store the user's role in session or authentication token
-				//HttpContext.Session.SetString("UserRole", role);  // Example of storing role in session
-																  // Store only readily available data in session
-				HttpContext.Session.SetString("UserEmail", user.Email); // Store the email
-				HttpContext.Session.SetString("UserRole", role); // Store the role
-				HttpContext.Session.SetString("LoginTime", DateTime.Now.ToString());
+				//// Optionally, you can store the user's role in session or authentication token
+				////HttpContext.Session.SetString("UserRole", role);  // Example of storing role in session
+				//												  // Store only readily available data in session
+				//HttpContext.Session.SetString("UserEmail", user.Email); // Store the email
+				//HttpContext.Session.SetString("UserRole", role); // Store the role
+				//HttpContext.Session.SetString("LoginTime", DateTime.Now.ToString());
 
 				// Redirect to the appropriate page based on the role
 				if (role == "Admin")
@@ -96,16 +96,16 @@ namespace RRS.Controllers
 		public IActionResult RegisterUser(User user)
 		{
 			// Assign default 'admin' role before validation
-			// Remove to default to 'staff'
-			if (string.IsNullOrEmpty(user.Role))
-			{
-				user.Role = "Admin";  // Default role
-				ModelState.Clear();  // Clear validation errors
-				TryValidateModel(user);  // Revalidate after setting Role
-				_logger.LogInformation("User rOLE: {Role}", user.Role);
-			}
+			//// Remove to default to 'staff'
+			//if (string.IsNullOrEmpty(user.Role))
+			//{
+			//	user.Role = "Admin";  // Default role
+			//	ModelState.Clear();  // Clear validation errors
+			//	TryValidateModel(user);  // Revalidate after setting Role
+			//	_logger.LogInformation("User rOLE: {Role}", user.Role);
+			//}
 
-			_logger.LogInformation("User rOLE outside: {Role}", user.Role);
+			//_logger.LogInformation("User rOLE outside: {Role}", user.Role);
 
 			try
 			{
@@ -172,7 +172,7 @@ namespace RRS.Controllers
 			_logger.LogInformation("Logging out user.");
 
 			// Clear the session
-			HttpContext.Session.Clear();  // Clears all session data
+			//HttpContext.Session.Clear();  // Clears all session data
 
 			// Optionally, you can also clear authentication cookies if using cookie-based authentication:
 			// _signInManager.SignOutAsync(); // if you are using ASP.NET Identity
