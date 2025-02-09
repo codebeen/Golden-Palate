@@ -64,6 +64,10 @@
     </div>
 </div>
 
+<form id="cancelReservationForm" method="post" action="@Url.Action("CancelReservation", "CustomerReservation")" enctype="multipart/form-data">
+    <input type="hidden" name="reservationNumber" value="@TempData["ReservationNumber"]" />
+</form>
+
 @section Scripts {
     <script>
         @if (TempData["SuccessMessage"] != null)
@@ -87,6 +91,28 @@
                     icon: 'error',
                     confirmButtonText: 'OK'
                                                     });
+            </text>
+        }
+
+        @if (TempData["DeleteReservation"] != null && TempData["ReservationNumber"] != null)
+        {
+            TempData.Keep("ReservationNumber"); // Prevents TempData from being cleared
+
+            <text>
+                    Swal.fire({
+                        title: 'Cancel Reservation!',
+                    text: '@TempData["DeleteReservation"]',
+                    icon: 'warning',
+                    confirmButtonText: 'Confirm',
+                    confirmButtonColor: '#d33',
+                    showCancelButton: true,
+                    cancelButtonText: 'Close',
+                    cancelButtonColor: '#6c757d'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                document.getElementById("cancelReservationForm").submit();
+                            }
+                        });
             </text>
         }
     </script>

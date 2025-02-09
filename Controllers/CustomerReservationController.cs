@@ -353,6 +353,16 @@ namespace RRS.Controllers
 
                 if (createReservationResult == 1)  // Checking if 1 row was affected
                 {
+                    var createdReservation = context.Reservations
+                        .FromSqlRaw("EXEC GetReservationByNumber @p0", reservation.ReservationNumber)
+                        .AsEnumerable()
+                        .FirstOrDefault();
+
+                    Console.WriteLine($"Created Reservation ID: {createdReservation.Id}");
+
+                    // Now you have the correct reservation ID
+                    reservation.Id = createdReservation.Id;
+
                     // Send email after successful reservation
                     string subject = "Your Reservation Details";
                     string modifyUrl = Url.Action("EditReservation", "CustomerReservation", new { reservationId = reservation.Id }, Request.Scheme);
@@ -419,6 +429,13 @@ namespace RRS.Controllers
             {
                 var reservationToEdit = context.Reservations.FromSqlRaw($"GetReservationById {reservationId}").AsEnumerable().FirstOrDefault();
 
+                if (reservationToEdit == null)
+                {
+                    TempData["ErrorMessage"] = "Reservation not found.";
+                    return RedirectToAction("DisplayBuffets");
+                }
+
+
                 return View("EditReservation", reservationToEdit);
             }
             catch (Exception ex)
@@ -431,17 +448,32 @@ namespace RRS.Controllers
 
         public IActionResult CancelReservation(int reservationId)
         {
-            var reservation = context.Reservations.FirstOrDefault(r => r.Id == reservationId);
+            var reservation = context.Reservations.FromSqlRaw($"Exec GetReservationById {reservationId}").AsEnumerable().FirstOrDefault();
+            
             if (reservation == null)
             {
                 TempData["ErrorMessage"] = "Reservation not found.";
                 return RedirectToAction("DisplayBuffets");
             }
 
-            context.Reservations.Remove(reservation);
-            context.SaveChanges();
 
-            TempData["SuccessMessage"] = "Reservation canceled successfully.";
+            TempData["DeleteReservation"] = $"Are you sure you want to delete your reservation with Reservation Number: {reservation.ReservationNumber}? This action cannot be undone.";
+            TempData["ReservationNumber"] = reservation.ReservationNumber;
+            return RedirectToAction("DisplayBuffets");
+        }
+
+        [HttpPost]
+        public IActionResult CancelReservation(string reservationNumber)
+        {
+            var cancelReservationResult = context.Database.ExecuteSqlRaw($"Exec CancelReservation @p0", reservationNumber);
+
+            if (cancelReservationResult == 1)
+            {
+                TempData["SuccessMessage"] = "Successfully cancelled your reservation.";
+                return RedirectToAction("DisplayBuffets");
+            }
+
+            TempData["ErrorMessage"] = "Unable to cancel your reservation.";
             return RedirectToAction("DisplayBuffets");
         }
     }

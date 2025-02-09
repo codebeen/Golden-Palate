@@ -1,9 +1,9 @@
 CREATE PROCEDURE CancelReservation
-    @Id INT
+    @ReservationNumber VARCHAR(255)
 AS
 BEGIN
     UPDATE Reservations
     SET Status = 'Cancelled',
         UpdatedAt = GETDATE()
-    WHERE Id = @Id;
+    WHERE ReservationNumber = @ReservationNumber;
 END;
