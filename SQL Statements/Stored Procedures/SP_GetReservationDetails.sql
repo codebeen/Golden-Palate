@@ -3,6 +3,7 @@ AS
 BEGIN
     SELECT 
         r.Id,
+		r.ReservationNumber,
         r.ReservationDate,
         r.TotalPrice,
         t.TableNumber,

@@ -140,6 +140,7 @@
                     <table class="table table-hover text-center" id="reservationTable">
                         <thead>
                             <tr>
+                                <th>Reservation Number</th>
                                 <th>Customer</th>
                                 <th>Date</th>
                                 <th>Time</th>
@@ -154,6 +155,7 @@
                             @foreach (var reservation in Model.reservationDetails)
                             {
                                 <tr>
+                                    <td>@reservation.ReservationNumber</td>
                                     <td>@reservation.CustomerFullName</td>
                                     <td>@reservation.ReservationDate.ToString("MMMM dd, yyyy")</td>
                                     @if (reservation.BuffetType.ToLower() == "breakfast")

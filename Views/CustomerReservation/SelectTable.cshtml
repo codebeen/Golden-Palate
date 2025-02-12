@@ -18,10 +18,10 @@
 
 <div class="text-center mb-2">
     <p class="text-secondary"> @TempData["BuffetDetails"] </p>
-    <p class="text-secondary">Choose a table and set your reservation details.</p>
+    <p class="text-secondary">Price: ₱@Model.BuffetPrice</p>
 </div>
 
-<div class="d-flex align-items-center justify-content-center flex-wrap gap-3 mt-3 mb-4">
+<div class="d-flex flex-column align-items-center justify-content-center flex-wrap gap-3 mt-3 mb-4">
     <div class="form-group w-20">
         <label for="datepicker" class="form-label">Select a date <span class="text-danger">*</span></label>
         <input type="text" id="datepicker" class="form-control bg-light"
@@ -29,7 +29,7 @@
                value="@((TempData["SelectedDate"] != null) ? TempData["SelectedDate"] : "")">
     </div>
 
-
+    <p class="text-secondary">Choose a table to reserve.</p>
 @*
     <div class="form-group w-20">
     <label for="numberOfGuest" class="form-label">Select seating capacity</label>
@@ -71,7 +71,7 @@
 
                 <button type="button" class="btn w-100 mt-auto @(isReserved ? "btn-secondary disabled" : "btn-primary")"
                 @(isReserved ? "disabled" : "")
-                        onclick="submitReservation(@table.Id, @table.TableNumber, @table.Price, '@Model.BuffetName', @Model.BuffetPrice, @table.SeatingCapacity)">
+                        onclick="submitReservation(@table.Id, @table.TableNumber, @table.Price, '@Model.BuffetName', @Model.BuffetPrice)">
                     @(isReserved ? "Reserved" : "Reserve Now")
                 </button>
             </div>
@@ -83,7 +83,6 @@
 <form id="reservationForm" asp-action="DisplayReservationForm" asp-controller="CustomerReservation" method="post" style="display:none;">
     <input type="hidden" id="formTableId" name="tableId" />
     <input type="hidden" id="formTableNumber" name="tableNumber" />
-    <input type="hidden" id="formSeatingCapacity" name="seatingCapacity" />
     <input type="hidden" id="formPrice" name="price" />
     <input type="hidden" id="formDate" name="date" />
     <input type="hidden" id="formBuffetPrice" name="buffetPrice" />
@@ -108,7 +107,7 @@
             });
         });
 
-        function submitReservation(tableId, tableNumber, price, buffetName, buffetPrice, buffetType, seatingCapacity) {
+        function submitReservation(tableId, tableNumber, price, buffetName, buffetPrice, buffetType) {
             const date = document.getElementById("datepicker").value;
 
             if (!date) {
@@ -128,7 +127,7 @@
             document.getElementById("formPrice").value = price;
             document.getElementById("formBuffetPrice").value = buffetPrice;
             document.getElementById("formBuffetType").value = buffetName;
-            document.getElementById("formSeatingCapacity").value = seatingCapacity;
+
 
             document.getElementById("reservationForm").submit();
         }

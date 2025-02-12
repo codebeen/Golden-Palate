@@ -3,6 +3,7 @@ AS
 BEGIN
     SELECT 
         Id,
+		ReservationNumber,
         ReservationDate,
         TotalPrice,
         TableNumber,
@@ -14,4 +15,5 @@ BEGIN
         ReservationDetails
     WHERE 
         CAST(ReservationDate AS DATE) = CAST(GETDATE() AS DATE)
+		AND ReservationStatus = 'Pending'
 END;

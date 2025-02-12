@@ -14,6 +14,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // Add EmailService to dependency injection
 builder.Services.AddTransient<EmailService>();
 
+// service to automatically cancel reservations
+//builder.Services.AddHostedService<ReservationStatusUpdater>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

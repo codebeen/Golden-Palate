@@ -9,6 +9,7 @@ BEGIN
     INSERT INTO Customers (FirstName, LastName, PhoneNumber, Email)
     VALUES (@FirstName, @LastName, @PhoneNumber, @Email);
 
-    -- Return the Id of the newly inserted customer
-    SELECT SCOPE_IDENTITY() AS CustomerId;
+    SELECT *
+    FROM Customers
+    WHERE Id = SCOPE_IDENTITY();
 END;

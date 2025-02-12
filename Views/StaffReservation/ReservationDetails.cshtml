@@ -11,6 +11,7 @@
                 </button>
             </div>
             <div class="modal-body">
+                <p><strong>Reservation Number:</strong> @Model.ReservationNumber</p>
                 <p><strong>Customer Name:</strong> @Model.CustomerFullName</p>
                 <p><strong>Date:</strong> @Model.ReservationDate.ToString("MMMM dd, yyyy")</p>
                 @if (Model.BuffetType.ToLower() == "breakfast")

@@ -1,5 +1,6 @@
 CREATE TABLE Reservations (
     Id INT IDENTITY(1,1) PRIMARY KEY,
+	ReservationNumber VARCHAR(255) UNIQUE NOT NULL,
     ReservationDate DATE NOT NULL,
     TotalPrice DECIMAL(10,2) NOT NULL,
     BuffetType VARCHAR(255) NOT NULL,

@@ -5,7 +5,7 @@ namespace RRS.Models
     public class Reservation
     {
         public int Id { get; set; }
-
+        public string ReservationNumber { get; set; }
         public DateOnly ReservationDate { get; set; }
         //public string? OccasionType { get; set; }  
         [Precision(10, 2)]

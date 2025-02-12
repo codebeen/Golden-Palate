@@ -1,6 +1,7 @@
 Create VIEW ReservationDetails AS
 SELECT 
 	r.Id,
+	r.ReservationNumber,
     r.ReservationDate,
     r.TotalPrice,
     t.TableNumber,
