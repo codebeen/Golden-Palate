@@ -64,7 +64,7 @@
     </div>
 </div>
 
-<form id="cancelReservationForm" method="post" action="@Url.Action("CancelReservation", "CustomerReservation")" enctype="multipart/form-data">
+<form id="cancelReservationForm" method="post" action="@Url.Action("CancelReservationInDatabase", "CustomerReservation")" enctype="multipart/form-data">
     <input type="hidden" name="reservationNumber" value="@TempData["ReservationNumber"]" />
 </form>
 

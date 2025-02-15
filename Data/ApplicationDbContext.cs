@@ -16,5 +16,6 @@ namespace RRS.Data
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Reservation> Reservations { get; set; }
         public DbSet<ReservationDetailsViewModel> ReservationDetails { get; set; }
+        public DbSet<ReservationDetailsDto> ReservationDetailsDto { get; set; }
     }
 }

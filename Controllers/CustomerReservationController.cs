@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using RRS.Data;
@@ -15,12 +16,13 @@ namespace RRS.Controllers
     {
         private readonly ApplicationDbContext context;
         private readonly EmailService _emailService;
+        private readonly IDataProtectionProvider _dataProtectionProvider;
 
-
-        public CustomerReservationController(ApplicationDbContext context, EmailService emailService)
+        public CustomerReservationController(ApplicationDbContext context, EmailService emailService, IDataProtectionProvider dataProtectionProvider)
         {
             this.context = context;
             _emailService = emailService;
+            _dataProtectionProvider = dataProtectionProvider;
         }
 
         public IActionResult Home()
@@ -204,19 +206,19 @@ namespace RRS.Controllers
             // Additional time checks for each buffet type (e.g., Breakfast, Lunch, Dinner)
             if (buffetType == "Breakfast" && reservationDate.Date == DateTime.Today && reservationDate.TimeOfDay >= TimeSpan.FromHours(7).Add(TimeSpan.FromMinutes(30)))
             {
-                TempData["ErrorMessage"] = "Breakfast reservations must be made before 7:30 AM today.";
+                TempData["ErrorMessage"] = "Breakfast reservations for today must be made before 7:30 AM.";
                 return RedirectToAction("DisplayBuffets"); // Redirect to an error page or show an error message
             }
 
             if (buffetType == "Lunch" && reservationDate.Date == DateTime.Today && reservationDate.TimeOfDay >= TimeSpan.FromHours(11))
             {
-                TempData["ErrorMessage"] = "Lunch reservations must be made before 11:00 AM today.";
+                TempData["ErrorMessage"] = "Lunch reservations today must be made before 11:00 AM.";
                 return RedirectToAction("DisplayBuffets"); // Redirect to an error page or show an error message
             }
 
             if (buffetType == "Dinner" && reservationDate.Date == DateTime.Today && reservationDate.TimeOfDay >= TimeSpan.FromHours(16).Add(TimeSpan.FromMinutes(30)))
             {
-                TempData["ErrorMessage"] = "Dinner reservations must be made before 4:30 PM today.";
+                TempData["ErrorMessage"] = "Dinner reservations today must be made before 4:30 PM.";
                 return RedirectToAction("DisplayBuffets"); // Redirect to an error page or show an error message
             }
 
@@ -337,13 +339,13 @@ namespace RRS.Controllers
                 // Now continue with the reservation creation
                 var reservationParameters = new SqlParameter[]
                 {
-            new SqlParameter("@ReservationNumber", SqlDbType.VarChar) { Value = reservation.ReservationNumber },
-            new SqlParameter("@ReservationDate", SqlDbType.Date) { Value = reservation.ReservationDate },
-            new SqlParameter("@TotalPrice", SqlDbType.Decimal) { Value = reservation.TotalPrice },
-            new SqlParameter("@BuffetType", SqlDbType.VarChar) { Value = reservation.BuffetType },
-            new SqlParameter("@SpecialRequest", SqlDbType.VarChar) { Value = string.IsNullOrEmpty(reservation.SpecialRequest) ? DBNull.Value : reservation.SpecialRequest },
-            new SqlParameter("@TableId", SqlDbType.Int) { Value = reservation.TableId },
-            new SqlParameter("@CustomerId", SqlDbType.Int) { Value = createdCustomerId }
+                    new SqlParameter("@ReservationNumber", SqlDbType.VarChar) { Value = reservation.ReservationNumber },
+                    new SqlParameter("@ReservationDate", SqlDbType.Date) { Value = reservation.ReservationDate },
+                    new SqlParameter("@TotalPrice", SqlDbType.Decimal) { Value = reservation.TotalPrice },
+                    new SqlParameter("@BuffetType", SqlDbType.VarChar) { Value = reservation.BuffetType },
+                    new SqlParameter("@SpecialRequest", SqlDbType.VarChar) { Value = string.IsNullOrEmpty(reservation.SpecialRequest) ? DBNull.Value : reservation.SpecialRequest },
+                    new SqlParameter("@TableId", SqlDbType.Int) { Value = reservation.TableId },
+                    new SqlParameter("@CustomerId", SqlDbType.Int) { Value = createdCustomerId }
                 };
 
                 var createReservationResult = await context.Database.ExecuteSqlRawAsync(
@@ -360,13 +362,13 @@ namespace RRS.Controllers
 
                     Console.WriteLine($"Created Reservation ID: {createdReservation.Id}");
 
-                    // Now you have the correct reservation ID
-                    reservation.Id = createdReservation.Id;
+                    var protector = _dataProtectionProvider.CreateProtector("ReservationIdProtector");
+                    string encryptedId = protector.Protect(createdReservation.Id.ToString());
 
                     // Send email after successful reservation
                     string subject = "Your Reservation Details";
-                    string modifyUrl = Url.Action("EditReservation", "CustomerReservation", new { reservationId = reservation.Id }, Request.Scheme);
-                    string cancelUrl = Url.Action("CancelReservation", "CustomerReservation", new { reservationId = reservation.Id }, Request.Scheme);
+                    string modifyUrl = Url.Action("EditReservation", "CustomerReservation", new { reservationId = encryptedId }, Request.Scheme);
+                    string cancelUrl = Url.Action("CancelReservation", "CustomerReservation", new { reservationId = encryptedId }, Request.Scheme);
 
                     // Get meal period and reservation time
                     (string mealPeriod, string reservationTime) = GetMealPeriodAndTime(reservation.BuffetType);
@@ -385,6 +387,8 @@ namespace RRS.Controllers
                     <li><strong>Table Number:</strong> {reservation.Table.TableNumber}</li>
                     <li><strong>Total Price:</strong> ₱{reservation.TotalPrice}</li>
                 </ul>
+                <p><strong>Note: </strong> Only the reservation date and your personal details can be modified. If you wish to change your table or buffet selection, please cancel this reservation and create a new one.</p>
+                <br>
                 <p>Modify or cancel your reservation using the buttons below:</p>
                 <a href='{modifyUrl}' style='padding: 10px 20px; background: #0096FF; color: white; text-decoration: none;'>Modify Reservation</a>
                 <a href='{cancelUrl}' style='padding: 10px 20px; background: #dc3545; color: white; text-decoration: none; margin-left: 10px;'>Cancel Reservation</a>
@@ -421,13 +425,16 @@ namespace RRS.Controllers
             };
         }
 
-
-        public IActionResult EditReservation(int reservationId)
+        [HttpGet]
+        public IActionResult EditReservation(string reservationId)
         {
-
             try
             {
-                var reservationToEdit = context.Reservations.FromSqlRaw($"GetReservationById {reservationId}").AsEnumerable().FirstOrDefault();
+                // decrypt the id
+                var protector = _dataProtectionProvider.CreateProtector("ReservationIdProtector");
+                int id = int.Parse(protector.Unprotect(reservationId));
+
+                var reservationToEdit = context.ReservationDetailsDto.FromSqlRaw($"GetReservationById @p0", id).AsEnumerable().FirstOrDefault();
 
                 if (reservationToEdit == null)
                 {
@@ -435,8 +442,38 @@ namespace RRS.Controllers
                     return RedirectToAction("DisplayBuffets");
                 }
 
+                if (reservationToEdit.Status.ToLower() == "cancelled")
+                {
+                    TempData["ErrorMessage"] = "This reservation is cancelled.";
+                    return RedirectToAction("DisplayBuffets");
+                }
 
-                return View("EditReservation", reservationToEdit);
+                var reservedDates = context.Reservations
+                                  .FromSqlRaw("EXEC GetReservedDatesForTableId @p0, @p1", reservationToEdit.TableId, reservationToEdit.BuffetType)
+                                  .AsEnumerable()
+                                  .Select(r => r.ReservationDate)
+                                  .ToList();
+
+                if (reservedDates == null)
+                {
+                    TempData["ErrorMessage"] = "Reservation dates not found.";
+                    return RedirectToAction("DisplayBuffets");
+                }
+
+                EditReservationViewModel reservationToEditViewModel = new EditReservationViewModel
+                {
+                    ReservationDetails = reservationToEdit,
+                    ReservedDates = reservedDates ?? new List<DateOnly>()
+                };
+
+                Console.WriteLine("Reserved dates:");
+                foreach (var date in reservationToEditViewModel.ReservedDates)
+                {
+                    Console.WriteLine(date.ToString("yyyy-MM-dd")); // Or any format you prefer
+                }
+                Console.WriteLine(reservationToEditViewModel.ReservationDetails.ReservationNumber);
+
+                return View("EditReservation", reservationToEditViewModel);
             }
             catch (Exception ex)
             {
@@ -446,9 +483,150 @@ namespace RRS.Controllers
             }
         }
 
-        public IActionResult CancelReservation(int reservationId)
+        [HttpPost]
+        public IActionResult UpdateReservation(EditReservationViewModel reservation)
         {
-            var reservation = context.Reservations.FromSqlRaw($"Exec GetReservationById {reservationId}").AsEnumerable().FirstOrDefault();
+            try
+            {
+                Console.WriteLine(reservation.ReservationDetails.FirstName);
+                var customerToEdit = context.Customers.FromSqlRaw("Exec GetCustomerById @p0", reservation.ReservationDetails.CustomerId).AsEnumerable().FirstOrDefault();
+
+                if (customerToEdit == null)
+                {
+                    TempData["ErrorMessage"] = "Customer not found.";
+                    return RedirectToAction("DisplayBuffets");
+                }
+
+                var customerParameters = new SqlParameter[]
+                {
+                    new SqlParameter()
+                    {
+                        ParameterName = "@Id",
+                        SqlDbType = System.Data.SqlDbType.Int,
+                        Value = reservation.ReservationDetails.CustomerId
+                    },
+                    new SqlParameter()
+                    {
+                        ParameterName = "@FirstName",
+                        SqlDbType = System.Data.SqlDbType.VarChar,
+                        Value = reservation.ReservationDetails.FirstName
+                    },
+                    new SqlParameter()
+                    {
+                        ParameterName = "@LastName",
+                        SqlDbType = System.Data.SqlDbType.VarChar,
+                        Value = reservation.ReservationDetails.LastName
+                    },
+                    new SqlParameter()
+                    {
+                        ParameterName = "@PhoneNumber",
+                        SqlDbType = System.Data.SqlDbType.VarChar,
+                        Value = reservation.ReservationDetails.PhoneNumber
+                    },
+                    new SqlParameter()
+                    {
+                        ParameterName = "@Email",
+                        SqlDbType = System.Data.SqlDbType.VarChar,
+                        Value = reservation.ReservationDetails.Email
+                    }
+                };
+
+                // update customer details
+                var updateCustomerResult = context.Database.ExecuteSqlRaw("EXEC UpdateCustomer @Id, @FirstName, @LastName, @PhoneNumber, @Email", customerParameters);
+
+                if (updateCustomerResult == 0)
+                {
+                    TempData["ErrorMessage"] = "Failed to update customer";
+                    return View("EditReservation", reservation);
+                }
+
+                var reservationToEdit = context.ReservationDetailsDto.FromSqlRaw("Exec GetReservationById @p0", reservation.ReservationDetails.Id).AsEnumerable().FirstOrDefault();
+
+                if (reservationToEdit == null)
+                {
+                    TempData["ErrorMessage"] = "Reservation not found.";
+                    return RedirectToAction("DisplayBuffets");
+                }
+
+                var reservationParameters = new SqlParameter[]
+                {
+                    new SqlParameter()
+                    {
+                        ParameterName = "@Id",
+                        SqlDbType = System.Data.SqlDbType.Int,
+                        Value = reservation.ReservationDetails.Id
+                    },
+                    new SqlParameter()
+                    {
+                        ParameterName = "@ReservationDate",
+                        SqlDbType = System.Data.SqlDbType.Date,
+                        Value = reservation.ReservationDetails.ReservationDate
+                    }
+                };
+
+                // update customer details
+                var updateReservationResult = context.Database.ExecuteSqlRaw("EXEC UpdateReservation @Id, @ReservationDate", reservationParameters);
+
+                if (updateCustomerResult == 0)
+                {
+                    TempData["ErrorMessage"] = "Failed to update reservation details";
+                    return View("EditReservation", reservation);
+                }
+
+                var protector = _dataProtectionProvider.CreateProtector("ReservationIdProtector");
+                string encryptedId = protector.Protect(reservation.ReservationDetails.Id.ToString());
+
+                // Send email after successful reservation
+                string subject = "Your Edited Reservation Details";
+                string modifyUrl = Url.Action("EditReservation", "CustomerReservation", new { reservationId = encryptedId }, Request.Scheme);
+                string cancelUrl = Url.Action("CancelReservation", "CustomerReservation", new { reservationId = encryptedId }, Request.Scheme);
+
+                // Get meal period and reservation time
+                (string mealPeriod, string reservationTime) = GetMealPeriodAndTime(reservation.ReservationDetails.BuffetType);
+
+                // Generate email body
+                string body = $@"
+                <h2>Reservation Details</h2>
+                <p>Dear {reservation.ReservationDetails.FirstName} {reservation.ReservationDetails.LastName},</p>
+                <p>Your reservation has been updated. Present this email to the staff on the day of your reservation.</p>
+                <p>Based on your selected buffet, your meal period is {mealPeriod}. Please arrive on or before {reservationTime}. Note that your reservation will be cancelled if you arrive 30 mins late.</p>
+                <ul>
+                    <li><strong>Reservation Number:</strong> {reservation.ReservationDetails.ReservationNumber}</li>
+                    <li><strong>Date:</strong> {reservation.ReservationDetails.ReservationDate:MMMM dd, yyyy}</li>
+                    <li><strong>Time:</strong> {reservationTime}</li>
+                    <li><strong>Buffet Type:</strong> {reservation.ReservationDetails.BuffetType}</li>
+                    <li><strong>Table Number:</strong> {reservation.ReservationDetails.TableNumber}</li>
+                    <li><strong>Total Price:</strong> ₱{reservation.ReservationDetails.TotalPrice}</li>
+                </ul>
+                <p><strong>Note: </strong> Only the reservation date and your personal details can be modified. If you wish to change your table or buffet selection, please cancel this reservation and create a new one.</p>
+                <p>Modify or cancel your reservation using the buttons below:</p>
+                <a href='{modifyUrl}' style='padding: 10px 20px; background: #0096FF; color: white; text-decoration: none;'>Modify Reservation</a>
+                <a href='{cancelUrl}' style='padding: 10px 20px; background: #dc3545; color: white; text-decoration: none; margin-left: 10px;'>Cancel Reservation</a>
+                <p>Best regards,<br>Restaurant Management Team</p>
+                ";
+
+                _emailService.SendEmailAsync(reservation.ReservationDetails.Email, subject, body);
+
+                TempData["SuccessMessage"] = "Reservation updated successfully. Your reservation details has been sent to your email.";
+                return RedirectToAction("DisplayBuffets");
+
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return View("EditReservation", reservation);
+            }
+        }
+
+
+        [HttpGet]
+        public IActionResult CancelReservation(string reservationId)
+        {
+            // decrypt the id
+            var protector = _dataProtectionProvider.CreateProtector("ReservationIdProtector");
+            int id = int.Parse(protector.Unprotect(reservationId));
+
+            var reservation = context.Reservations.FromSqlRaw($"Exec GetReservationById @p0", id).AsEnumerable().FirstOrDefault();
             
             if (reservation == null)
             {
@@ -463,7 +641,7 @@ namespace RRS.Controllers
         }
 
         [HttpPost]
-        public IActionResult CancelReservation(string reservationNumber)
+        public IActionResult CancelReservationInDatabase(string reservationNumber)
         {
             var cancelReservationResult = context.Database.ExecuteSqlRaw($"Exec CancelReservation @p0", reservationNumber);
 
