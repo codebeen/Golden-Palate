@@ -1,5 +1,5 @@
 CREATE PROCEDURE GetReservedDatesForTableId 
-    @Id INT,
+    @TableId INT,
 	@BuffetType VARCHAR(255)
 AS
 BEGIN
@@ -7,7 +7,7 @@ BEGIN
 
     SELECT * 
     FROM Reservations
-    WHERE TableId = @Id 
+    WHERE TableId = @TableId 
 	AND BuffetType = @BuffetType
 	AND Status IN ('Pending', 'Ongoing')
 END;
