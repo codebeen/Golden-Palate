@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Table Management";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    int counter = 1;
 }
 
 
@@ -15,50 +16,11 @@
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTable">
             <i class="fa-solid fa-plus"></i>  Add Table
         </button>
-        @* <button type="button" class="btn btn-warning" data-bs-toggle="" data-bs-target=""> *@
-        @*     <i class="fa-solid fa-download"></i>  Export CSV *@
-        @* </button> *@
+        <button type="button" class="btn btn-warning" data-bs-toggle="" data-bs-target="">
+            <i class="fa-solid fa-download"></i>  Export CSV
+        </button>
     </div>
 </div>
-
-<script>
-
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <text>
-                Swal.fire({
-                    title: 'Success!',
-                    text: '@TempData["SuccessMessage"]',
-                    icon: 'success',
-                    confirmButtonText: 'OK'
-                    });
-        </text>
-    }
-
-    @if (TempData["InformationMessage"] != null)
-    {
-        <text>
-                Swal.fire({
-                    title: 'Information!',
-                    text: '@TempData["InformationMessage"]',
-                    icon: 'info',
-                    confirmButtonText: 'OK'
-                    });
-        </text>
-    }
-
-    @if (TempData["ErrorMessage"] != null)
-    {
-        <text>
-                    Swal.fire({
-                        title: 'Error!',
-                        text: '@TempData["ErrorMessage"]',
-                        icon: 'error',
-                        confirmButtonText: 'OK'
-                    });
-        </text>
-    }
-</script>
 
 <!-- DataTales Example -->
 <div class="card border-0 shadow-sm mb-5">
@@ -67,56 +29,58 @@
             <table class="table table-hover text-center" id="tableTable">
                 <thead>
                     <tr>
-                        <th>Table Number</th>
-                        <th>Description</th>
-                        <th>Seating Capacity</th>
-                        <th>Price</th>
-                        <th>Table Location</th>
-                        <th>Status</th>
-                        <th></th>
-                        <th></th>
+                        <th class="text-center">No.</th>
+                        <th class="text-center">Table Number</th>
+                        <th class="text-center">Description</th>
+                        <th class="text-center">Seating Capacity</th>
+                        <th class="text-center">Price</th>
+                        <th class="text-center">Table Location</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-center">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var table in Model)
                     {
                         <tr>
-                            <td>@table.TableNumber</td>
-                            <td>@table.Description</td>
-                            <td>@table.SeatingCapacity</td>
-                            <td>₱@table.Price</td>
-                            <td>@table.TableLocation</td>
-                            <td>
+                            <td class="text-center">@counter</td>
+                            <td class="text-center">@table.TableNumber</td>
+                            <td class="text-start">@table.Description</td>
+                            <td class="text-center">@table.SeatingCapacity</td>
+                            <td class="text-center">₱@table.Price</td>
+                            <td class="text-center">@table.TableLocation</td>
+                            <td class="text-center">
                                 @if (table.Status == "Available")
                                 {
-                                    <span class="badge bg-success">Available</span>
-                                }
-                                else if (table.Status == "Reserved")
-                                {
-                                    <span class="badge bg-danger">Reserved</span>
-                                }
-                                else if (table.Status == "Occupied")
-                                {
-                                    <span class="badge bg-warning text-dark">Occupied</span>
+                                    <span class="text-success">Available</span>
                                 }
                                 else if (table.Status == "Maintenance")
                                 {
-                                    <span class="badge bg-secondary text-dark">Maintenance</span>
+                                    <span class="text-danger">Maintenance</span>
                                 }
                             </td>
-                            <td class="d-flex justify-content-center gap-2">
-                                <button type="button" class="btn btn-outline-warning btn-sm rounded-pill px-3 py-1" data-bs-toggle="modal" data-bs-target="#editTable-@table.Id" data-url="@Url.Action($"Edit/{table.Id}")">
-                                    Edit
-                                </button>
-                                @await Html.PartialAsync("EditTableModal", table)
-                            </td>
-                            <td>
-                                <button type="button" class="btn btn-outline-danger btn-sm rounded-pill px-3 py-1" data-bs-toggle="modal" data-bs-target="#deleteTable-@table.Id" data-url="@Url.Action($"Delete/{table.Id}")">
-                                    Delete
-                                </button>
-                                @await Html.PartialAsync("DeleteTableModal", table)
+                            <td class="align-middle text-center">
+                                <div class="d-flex justify-content-center gap-3 flex-wrap w-100">
+                                    <!-- Edit Button -->
+                                    <div class="d-flex flex-column flex-sm-row ms-1">
+                                        <button type="button" class="btn btn-outline-warning btn-sm rounded-pill px-2 py-1" data-bs-toggle="modal" data-bs-target="#editTable-@table.Id" data-url="@Url.Action($"Edit/{table.Id}")">
+                                            <i class="fa-solid fa-pencil-alt"></i> <!-- Edit icon -->
+                                        </button>
+                                        @await Html.PartialAsync("EditTableModal", table)
+                                    </div>
+
+                                    <!-- Delete Button -->
+                                    <div class="d-flex flex-column flex-sm-row mt-2 mt-sm-0 ms-1">
+                                        <button type="button" class="btn btn-outline-danger btn-sm rounded-pill px-2 py-1" data-bs-toggle="modal" data-bs-target="#deleteTable-@table.Id" data-url="@Url.Action($"Delete/{table.Id}")">
+                                            <i class="fa-solid fa-trash-alt"></i> <!-- Delete icon -->
+                                        </button>
+                                        @await Html.PartialAsync("DeleteTableModal", table)
+                                    </div>
+                                </div>
                             </td>
                         </tr>
+
+                        counter++;
                     }
                 </tbody>
             </table>
@@ -132,14 +96,85 @@
     <i class="fas fa-angle-up"></i>
 </a>
 
+<style>
+    #addEditHeader {
+        border-bottom: none;
+        padding: 1.5rem 1.5rem 0.5rem;
+        background: linear-gradient(to right, #0062cc, #0096ff);
+        color: white;
+    }
+
+    #modalHeader {
+        border-bottom: none;
+        padding: 1.5rem 1.5rem 0.5rem;
+        background: linear-gradient(to right, #ff6b6b, #ff8787);
+        border-radius: 1rem 1rem 0 0;
+        color: white;
+    }
+
+    #deleteTableLabel {
+        font-weight: 600;
+        font-size: 1.25rem;
+    }
+
+    #deleteCloseButton {
+        filter: brightness(0) invert(1);
+        opacity: 0.8;
+        transition: opacity 0.2s;
+    }
+</style>
+
 <!-- Bootstrap JS Bundle -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+
+<script>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <text>
+                Swal.fire({
+                    title: 'Success!',
+                text: '@TempData["SuccessMessage"]',
+                icon: 'success',
+                confirmButtonText: 'OK'
+                            });
+        </text>
+    }
+
+    @if (TempData["InformationMessage"] != null)
+    {
+        <text>
+                Swal.fire({
+                    title: 'Information!',
+                text: '@TempData["InformationMessage"]',
+                icon: 'info',
+                confirmButtonText: 'OK'
+                            });
+        </text>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <text>
+                Swal.fire({
+                    title: 'Error!',
+                text: '@TempData["ErrorMessage"]',
+                icon: 'error',
+                confirmButtonText: 'OK'
+                            });
+        </text>
+    }
+</script>
+
 
 @section Scripts {
     <script>
         $(document).ready(function () {
             new DataTable('#tableTable');
         });
+
+
 
         // document.addEventListener("DOMContentLoaded", function () {
         //     const toast = new bootstrap.Toast(document.getElementById("successNotification"));

@@ -2,8 +2,8 @@ CREATE PROCEDURE GetReservationDetailsFromView
 AS
 BEGIN
     SELECT 
-		Id,
-		ReservationNumber,
+        Id,
+        ReservationNumber,
         ReservationDate,
         TotalPrice,
         TableNumber,
@@ -12,5 +12,11 @@ BEGIN
         SpecialRequest,       
         ReservationStatus
     FROM 
-        ReservationDetails;
+        ReservationDetails
+    ORDER BY 
+        CASE 
+            WHEN ReservationStatus = 'Pending' THEN 1
+            ELSE 2
+        END,
+        ReservationDate ASC;
 END;

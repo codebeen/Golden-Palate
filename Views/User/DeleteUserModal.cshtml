@@ -1,18 +1,18 @@
-﻿@model Table
+﻿@model User
 
-<!-- Modal for Deleting Menu -->
-<div class="modal fade" id="deleteTable-@Model.Id" tabindex="-1" aria-labelledby="deleteTableLabel" aria-hidden="true">
+<!-- Modal for Deleting User -->
+<div class="modal fade" id="deleteUser-@Model.Id" tabindex="-1" aria-labelledby="deleteUserLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header" id="modalHeader">
-                <h5 class="modal-title" id="deleteTableLabel">Confirm Deletion</h5>
+                <h5 class="modal-title" id="deleteUserLabel">Confirm Deletion</h5>
                 <button type="button" id="deleteCloseButton" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body text-center">
                 <i class="fas fa-exclamation-triangle warning-icon"></i>
-                <p class="mb-0">Are you sure you want to delete <span class="fw-bold">Table @Model.TableNumber</span>?<br>This action cannot be undone.</p>
+                <p class="mb-0">Are you sure you want to delete the account for <span class="fw-bold">@(Model.FirstName + " " + Model.LastName)</span>?<br>This action cannot be undone.</p>
 
-                <form asp-action="Delete" asp-controller="Table" id="deleteTableForm" method="post" enctype="multipart/form-data">
+                <form asp-action="Delete" asp-controller="User" id="deleteUserForm" method="post" enctype="multipart/form-data">
                     <input type="hidden" asp-for="Id" />
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">

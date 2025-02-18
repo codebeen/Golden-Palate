@@ -105,14 +105,14 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script>
 
-        var reservedDates = @Html.Raw(Json.Serialize(Model.ReservedDates.Select(d => d.ToString("Y-MM-dd"))));
+        var reservedDates = @Html.Raw(Json.Serialize(Model.ReservedDates.Select(d => d.ToString("yyyy-MM-dd"))));
 
         flatpickr("#datepicker", {
             dateFormat: "Y-m-d",
             minDate: "today",
-            disable: reservedDates.map(date => date), // Disable reserved dates
-            theme: "material_blue"
+            disable: reservedDates,
         });
+
 
         document.getElementById("editReservationForm").addEventListener("submit", showTermsAndConditions);
 

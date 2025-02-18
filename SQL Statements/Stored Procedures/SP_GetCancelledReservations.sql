@@ -14,5 +14,7 @@ BEGIN
     FROM 
         ReservationDetails
     WHERE 
-        ReservationStatus = 'Cancelled';
+        ReservationStatus = 'Cancelled'
+	ORDER BY 
+        ReservationDate DESC;
 END;

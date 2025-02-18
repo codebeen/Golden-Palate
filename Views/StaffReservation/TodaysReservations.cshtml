@@ -3,22 +3,25 @@
 @{
     ViewData["Title"] = "Staff-Reservations";
     Layout = "~/Views/Shared/_StaffLayout.cshtml";
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    int counter = 1;
 }
 
 <div class="text-left mb-2 d-flex align-items-center justify-content-between">
     <div>
-        <h1 class="fs-4">Today's' Reservations</h1>
+        <h1 class="fs-4">Today's Reservations</h1>
         <p class="text-secondary">List of all todays reservations.</p>
     </div>
 </div>
 
-<div class="container d-flex align-items-center justify-content-start gap-3 my-3">
-    <a class="btn btn-outline-dark p-2" asp-action="Index" asp-controller="StaffReservation">All Reservations</a>
-    <a class="btn btn-outline-dark p-2" asp-action="GetUpcomingReservations" asp-controller="StaffReservation">Upcoming Reservations</a>
-    <a class="btn btn-outline-dark p-2" asp-action="GetTodaysReservations" asp-controller="StaffReservation">Today's Reservations</a>
-    <a class="btn btn-outline-dark p-2" asp-action="GetOngoingReservations" asp-controller="StaffReservation">Ongoing Reservations</a>
-    <a class="btn btn-outline-dark p-2" asp-action="GetCompletedReservations" asp-controller="StaffReservation">Completed Reservations</a>
-    <a class="btn btn-outline-dark p-2" asp-action="GetCancelledReservations" asp-controller="StaffReservation">Cancelled Reservations</a>
+<div class="container-fluid d-flex align-items-center justify-content-start gap-3 my-3 w-100 flex-wrap">
+    <a class="btn @(currentAction == "Index" && currentController == "StaffReservation" ? "btn-dark" : "btn-outline-dark") p-2" asp-action="Index" asp-controller="StaffReservation">All Reservations</a>
+    <a class="btn @(currentAction == "GetUpcomingReservations" ? "btn-dark" : "btn-outline-dark") p-2" asp-action="GetUpcomingReservations" asp-controller="StaffReservation">Upcoming Reservations</a>
+    <a class="btn @(currentAction == "GetTodaysReservations" ? "btn-dark" : "btn-outline-dark") p-2" asp-action="GetTodaysReservations" asp-controller="StaffReservation">Today's Reservations</a>
+    <a class="btn @(currentAction == "GetOngoingReservations" ? "btn-dark" : "btn-outline-dark") p-2" asp-action="GetOngoingReservations" asp-controller="StaffReservation">Ongoing Reservations</a>
+    <a class="btn @(currentAction == "GetCompletedReservations" ? "btn-dark" : "btn-outline-dark") p-2" asp-action="GetCompletedReservations" asp-controller="StaffReservation">Completed Reservations</a>
+    <a class="btn @(currentAction == "GetCancelledReservations" ? "btn-dark" : "btn-outline-dark") p-2" asp-action="GetCancelledReservations" asp-controller="StaffReservation">Cancelled Reservations</a>
 </div>
 
 <script>
@@ -61,6 +64,23 @@
                                                 });
         </text>
     }
+
+        function confirmCancellation(reservationId) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'Do you want to cancel this reservation?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, Cancel it!',
+                cancelButtonText: 'Close',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('todayCancel-form-' + reservationId).submit();
+                }
+            });
+        }
 </script>
 
 <!-- DataTales Example -->
@@ -70,15 +90,16 @@
             <table class="table table-hover text-center" id="reservationTable">
                 <thead>
                     <tr>
-                        <td>Reservation Number</td>
-                        <th>Customer</th>
-                        <th>Date</th>
-                        <th>Time</th>
-                        <th>Table Number</th>
-                        <th>Buffet Type</th>
-                        <th>Total Price</th>
-                        <th>Special Request</th>
-                        <th>Status</th>
+                        <th class="text-center">No.</th>
+                        <th class="text-center">Reservation Number</th>
+                        <th class="text-center">Customer</th>
+                        <th class="text-center">Date</th>
+                        <th class="text-center">Time</th>
+                        <th class="text-center">Table Number</th>
+                        <th class="text-center">Buffet Type</th>
+                        <th class="text-center">Total Price</th>
+                        <th class="text-center">Special Request</th>
+                        <th class="text-center">Status</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -86,20 +107,32 @@
                     @foreach (var reservation in Model)
                     {
                         <tr>
+                            <td class="text-start">@counter</td>
                             <td>@reservation.ReservationNumber</td>
                             <td>@reservation.CustomerFullName</td>
                             <td>@reservation.ReservationDate.ToString("MMMM dd, yyyy")</td>
-                            @if (reservation.BuffetType.ToLower() == "breakfast")
-                            {
-                                <td>8:00 AM - 10:30 AM</td>
-                            }
-                            @if (reservation.BuffetType.ToLower() == "lunch")
-                            {
-                                <td>11:30 AM - 2:30 PM</td>
-                            }
-                            @if (reservation.BuffetType.ToLower() == "dinner")
-                            {
-                                <td>5:00 PM - 8:00 PM</td>
+                            @{
+                                // Combine ReservationDate with BuffetType start time
+                                DateTime reservationStartDateTime = reservation.ReservationDate.ToDateTime(new TimeOnly(0, 0));
+
+                                switch (reservation.BuffetType.ToLower())
+                                {
+                                    case "breakfast":
+                                        reservationStartDateTime = reservation.ReservationDate.ToDateTime(new TimeOnly(8, 30));
+                                        <td>8:00 AM - 10:30 AM</td>
+                                        break;
+                                    case "lunch":
+                                        reservationStartDateTime = reservation.ReservationDate.ToDateTime(new TimeOnly(12, 0));
+                                        <td>11:30 AM - 2:30 PM</td>
+                                        break;
+                                    case "dinner":
+                                        reservationStartDateTime = reservation.ReservationDate.ToDateTime(new TimeOnly(17, 30));
+                                        <td>5:00 PM - 8:00 PM</td>
+                                        break;
+                                    default:
+                                        <td>-</td>
+                                        break;
+                                }
                             }
                             <td>@reservation.TableNumber</td>
                             <td class="hidden-xs hidden-sm">@reservation.BuffetType</td>
@@ -125,35 +158,51 @@
                                         break;
                                 }
                             </td>
-                            <td class="d-flex justify-content-center gap-2">
-                                <button type="button" class="btn btn-info btn-sm rounded px-3 py-1" data-bs-toggle="modal" data-bs-target="#staffViewDetails-@reservation.Id" data-url="@Url.Action($"ViewReservationDetailsStaff/{reservation.Id}")">
-                                    View
-                                </button>
-                                @await Html.PartialAsync("ReservationDetails", reservation)
+                            <td class="align-middle text-center">
+                                <div class="d-flex justify-content-start gap-1 flex-wrap">
+                                    <button type="button" class="btn btn-info btn-sm rounded px-3 py-1" data-bs-toggle="modal" data-bs-target="#staffViewDetails-@reservation.Id" data-url="@Url.Action($"ViewReservationDetailsStaff/{reservation.Id}")">
+                                        View
+                                    </button>
+                                    @await Html.PartialAsync("ReservationDetails", reservation)
 
-                                <!--Button to start the reservation -->
-                                @if (reservation.ReservationStatus.ToLower() == "pending")
-                                {
-                                    <form method="post" asp-action="StartReservation" asp-controller="StaffReservation">
-                                        <input type="hidden" name="reservationId" value="@reservation.Id" />
-                                        <button type="submit" class="btn btn-warning btn-sm rounded px-3 py-1">
-                                            Start
-                                        </button>
-                                    </form>
-                                }
+                                    @if (reservation.ReservationStatus.ToLower() == "pending")
+                                    {
+                                        if (reservationStartDateTime >= DateTime.Now)
+                                        {
+                                            <form method="post" asp-action="StartReservation" asp-controller="StaffReservation" class="d-inline-block">
+                                                <input type="hidden" name="reservationId" value="@reservation.Id" />
+                                                <button type="submit" class="btn btn-warning btn-sm rounded px-3 py-1">
+                                                    Start
+                                                </button>
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                            <form id="todayCancel-form-@reservation.Id" method="post" asp-action="CancelReservation" asp-controller="StaffReservation" style="display:none;" enctype="multipart/form-data">
+                                                <input type="hidden" name="reservationId" value="@reservation.Id" />
+                                            </form>
 
-                                <!-- Button to complete the reservation -->
-                                @if (reservation.ReservationStatus.ToLower() == "ongoing")
-                                {
-                                    <form method="post" asp-action="CompleteReservation" asp-controller="StaffReservation">
-                                        <input type="hidden" name="reservationId" value="@reservation.Id" />
-                                        <button type="submit" class="btn btn-success btn-sm rounded px-3 py-1">
-                                            Complete
-                                        </button>
-                                    </form>
-                                }
+                                            <button type="button" class="btn btn-danger btn-sm rounded px-3 py-1" onclick="confirmCancellation('@reservation.Id')">
+                                                Cancel
+                                            </button>
+                                        }
+                                    }
+
+                                    @if (reservation.ReservationStatus.ToLower() == "ongoing")
+                                    {
+                                        <form method="post" asp-action="CompleteReservation" asp-controller="StaffReservation" class="d-inline-block">
+                                            <input type="hidden" name="reservationId" value="@reservation.Id" />
+                                            <button type="submit" class="btn btn-success btn-sm rounded px-3 py-1">
+                                                Complete
+                                            </button>
+                                        </form>
+                                    }
+                                </div>
                             </td>
+
                         </tr>
+
+                        counter++;
                     }
                 </tbody>
             </table>

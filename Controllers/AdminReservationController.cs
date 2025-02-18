@@ -16,7 +16,7 @@ namespace RRS.Controllers
         public IActionResult Index()
         {
             // Fetch ReservationDetails view model from the stored procedure or database.
-            var reservationDetails = context.ReservationDetails.FromSqlRaw("EXEC GetReservationDetails").ToList();
+            var reservationDetails = context.ReservationDetails.FromSqlRaw("EXEC GetReservationDetailsFromView").ToList();
 
             // Pass the correct model to the view.
             return View("Index", reservationDetails);  // Ensure it's IEnumerable<ReservationDetails>

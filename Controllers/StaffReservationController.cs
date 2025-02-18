@@ -232,5 +232,20 @@ namespace RRS.Controllers
 
             return View("CancelledReservations", ongoingReservations);
         }
+
+        public IActionResult CancelReservation(int reservationId)
+        {
+            var cancelReservationResult = context.Database.ExecuteSqlRaw($"Exec CancelReservationById @p0", reservationId);
+
+            if (cancelReservationResult == 1)
+            {
+                TempData["SuccessMessage"] = "Reservation successfully cancelled.";
+                return RedirectToAction("Index");
+            }
+
+            TempData["ErrorMessage"] = "Unable to cancel reservation.";
+            return RedirectToAction("Index");
+        }
+
     }
 }

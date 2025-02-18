@@ -14,5 +14,7 @@ BEGIN
     FROM 
         ReservationDetails
     WHERE 
-        ReservationStatus = 'Completed';
-END;
+        ReservationStatus = 'Completed'
+	ORDER BY 
+        ReservationDate DESC
+END

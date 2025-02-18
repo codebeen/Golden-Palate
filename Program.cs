@@ -14,8 +14,20 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // Add EmailService to dependency injection
 builder.Services.AddTransient<EmailService>();
 
-// service to automatically cancel reservations
-//builder.Services.AddHostedService<ReservationStatusUpdater>();
+// CancelExpiredReservations service
+builder.Services.AddScoped<CancelExpiredReservations>();
+
+// background service to cancel expired reservations
+builder.Services.AddHostedService<ReservationExpiryService>();
+
+builder.Services.AddDistributedMemoryCache(); // Required for session
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30); // Set session timeout
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true; // Make the session cookie essential
+});
+
 
 var app = builder.Build();
 
@@ -34,9 +46,11 @@ app.UseRouting();
 
 app.UseAuthorization();
 
+app.UseSession();
+
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Dashboard}/{action=Index}/{id?}");
 
 //app.MapControllerRoute(
 //    name: "staff",

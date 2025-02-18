@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Reservations";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    int counter = 1;
 }
 
 <div class="text-left mb-2 d-flex align-items-center justify-content-between">
@@ -10,7 +11,98 @@
         <h1 class="fs-4">Reservations</h1>
         <p class="text-secondary">List of all reservations.</p>
     </div>
+    <button type="button" class="btn btn-warning" data-bs-toggle="" data-bs-target="">
+        <i class="fa-solid fa-download"></i>  Export CSV
+    </button>
 </div>
+
+<!-- DataTales Example -->
+<div class="card border-0 shadow-sm mb-5">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover text-center" id="reservationTable">
+                <thead>
+                    <tr>
+                        <th class="text-center">No.</th>
+                        <th class="text-center" >Reservation Number</th>
+                        <th class="text-center">Customer</th>
+                        <th class="text-center">Date</th>
+                        <th class="text-center">Time</th>
+                        <th class="text-center">Table Number</th>
+                        <th class="text-center">Buffet Type</th>
+                        <th class="text-center">Total Price</th>
+                        <th class="text-center">Special Request</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var reservation in Model)
+                    {
+                        <tr>
+                            <td class="text-center">@counter</td>
+                            <td class="text-center">@reservation.ReservationNumber</td>
+                            <td class="text-center">@reservation.CustomerFullName</td>
+                            <td class="text-center">@reservation.ReservationDate.ToString("MMMM dd, yyyy")</td>
+                            @if (reservation.BuffetType.ToLower() == "breakfast")
+                            {
+                                <td class="text-center">8:00 AM - 10:30 AM</td>
+                            }
+                            @if (reservation.BuffetType.ToLower() == "lunch")
+                            {
+                                <td class="text-center">11:30 AM - 2:30 PM</td>
+                            }
+                            @if (reservation.BuffetType.ToLower() == "dinner")
+                            {
+                                <td class="text-center">5:00 PM - 8:00 PM</td>
+                            }
+                            <td>@reservation.TableNumber</td>
+                            <td class="text-center">@reservation.BuffetType</td>
+                            <td class="text-center">₱@reservation.TotalPrice</td>
+                            <td class="text-center">@reservation.SpecialRequest</td>
+                            <td class="text-center">
+                                @switch (reservation.ReservationStatus.ToLower())
+                                {
+                                    case "pending":
+                                        <span class="text-warning">Pending</span>
+                                        break;
+                                    case "ongoing":
+                                        <span class="text-info">Ongoing</span>
+                                        break;
+                                    case "cancelled":
+                                        <span class="text-danger">Cancelled</span>
+                                        break;
+                                    case "completed":
+                                        <span class="text-success">Completed</span>
+                                        break;
+                                    default:
+                                        <span class="text-black">Unknown</span>
+                                        break;
+                                }
+                            </td>
+                            <td class="align-middle text-center">
+                                <button type="button" class="btn btn-info btn-sm rounded px-3 py-1" data-bs-toggle="modal" data-bs-target="#viewDetails-@reservation.Id" data-url="@Url.Action($"ViewReservationDetails/{reservation.Id}")">
+                                    View
+                                </button>
+                                @await Html.PartialAsync("ReservationDetails", reservation)
+                            </td>
+                        </tr>
+
+                        counter++;
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Scroll to Top Button -->
+<a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+</a>
+
+<!-- Bootstrap JS Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
     $(document).ready(function () {
@@ -53,87 +145,3 @@
         </text>
     }
 </script>
-
-<!-- DataTales Example -->
-<div class="card border-0 shadow-sm mb-5">
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-hover text-center" id="reservationTable">
-                <thead>
-                    <tr>
-                        <th>Reservation Number</th>
-                        <th>Customer</th>
-                        <th>Date</th>
-                        <th>Time</th>
-                        <th>Table Number</th>
-                        <th>Buffet Type</th>
-                        <th>Total Price</th>
-                        <th>Special Request</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var reservation in Model)
-                    {
-                        <tr>
-                            <td>@reservation.ReservationNumber</td>
-                            <td>@reservation.CustomerFullName</td>
-                            <td>@reservation.ReservationDate.ToString("MMMM dd, yyyy")</td>
-                            @if (reservation.BuffetType.ToLower() == "breakfast")
-                            {
-                                <td>8:00 AM - 10:30 AM</td>
-                            }
-                            @if (reservation.BuffetType.ToLower() == "lunch")
-                            {
-                                <td>11:30 AM - 2:30 PM</td>
-                            }
-                            @if (reservation.BuffetType.ToLower() == "dinner")
-                            {
-                                <td>5:00 PM - 8:00 PM</td>
-                            }
-                            <td>@reservation.TableNumber</td>
-                            <td class="hidden-xs hidden-sm">@reservation.BuffetType</td>
-                            <td class="hidden-xs hidden-sm">₱@reservation.TotalPrice</td>
-                            <td class="hidden-xs hidden-sm">@reservation.SpecialRequest</td>
-                            <td>
-                                @switch (reservation.ReservationStatus.ToLower())
-                                {
-                                    case "pending":
-                                        <span class="text-warning">Pending</span>
-                                        break;
-                                    case "ongoing":
-                                        <span class="text-info">Ongoing</span>
-                                        break;
-                                    case "cancelled":
-                                        <span class="text-danger">Cancelled</span>
-                                        break;
-                                    case "completed":
-                                        <span class="text-success">Completed</span>
-                                        break;
-                                    default:
-                                        <span class="text-black">Unknown</span>
-                                        break;
-                                }
-                            </td>
-                            <td class="d-flex justify-content-center gap-2">
-                                <button type="button" class="btn btn-info btn-sm rounded px-3 py-1" data-bs-toggle="modal" data-bs-target="#viewDetails-@reservation.Id" data-url="@Url.Action($"ViewReservationDetails/{reservation.Id}")">
-                                    View
-                                </button>
-                                @await Html.PartialAsync("ReservationDetails", reservation)
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-
-<!-- Scroll to Top Button -->
-<a class="scroll-to-top rounded" href="#page-top">
-    <i class="fas fa-angle-up"></i>
-</a>
-
-<!-- Bootstrap JS Bundle -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>

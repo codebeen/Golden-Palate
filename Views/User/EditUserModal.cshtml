@@ -1,0 +1,56 @@
+﻿@model User
+
+<!-- Modal -->
+<div class="modal fade" id="editUser-@Model.Id" tabindex="-1" aria-labelledby="editUserLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header" id="addEditHeader">
+                <h1 class="modal-title fs-5" id="editUserLabel">Edit User Details</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form asp-action="Edit" asp-controller="User" id="addUserForm" method="post" enctype="multipart/form-data">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="Id" />
+
+                    <!-- First Name -->
+                    <div class="form-group mb-2 text-start">
+                        <label class="control-label mb-1">First Name <span class="text-danger">*</span></label>
+                        <input type="text" placeholder="ex. Juan" asp-for="FirstName" class="form-control" disabled />
+                        <span asp-validation-for="FirstName" class="text-danger"></span>
+                    </div>
+
+                    <!-- Last Name -->
+                    <div class="form-group mb-2 text-start">
+                        <label class="control-label mb-1">Last Name <span class="text-danger">*</span></label>
+                        <input type="text" placeholder="ex. Santos" asp-for="LastName" class="form-control" disabled />
+                        <span asp-validation-for="LastName" class="text-danger"></span>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="form-group mb-2 text-start">
+                        <label class="control-label mb-1">Email <span class="text-danger">*</span></label>
+                        <input type="email" placeholder="ex. email@gmail.com" asp-for="Email" class="form-control" disabled />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                    <!-- Role -->
+                    <div class="form-group mb-2 text-start">
+                        <label class="control-label mb-1">Role <span class="text-danger">*</span></label>
+                        <select class="form-select" asp-for="Role" required>
+                            <option value="" selected>Select a role</option>
+                            <option value="Admin">Admin</option>
+                            <option value="Staff">Staff</option>
+                        </select>
+                        <span asp-validation-for="Role" class="text-danger"></span>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

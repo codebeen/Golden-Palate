@@ -25,6 +25,10 @@
     <script src="~/js/adminLayout.js" defer></script>
 </head>
 <body id="body-pd" class="bg-light" styel="font-family: 'Poppins'">
+    @{
+        var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+        var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    }
     <header class="header bg-white" id="header">
         <div class="header_toggle">
             <i class='bx bx-menu' id="header-toggle"></i>
@@ -42,13 +46,17 @@
                     <span class="nav_logo-name">Golden Palate</span>
                 </a>
                 <div class="nav_list">
-                    <a class="nav_link active" asp-area="" asp-action="Index" asp-controller="Dashboard">
+                    <a class="nav_link @(currentController == "Dashboard" && currentAction == "Index" ? "active" : "")" asp-area="" asp-action="Index" asp-controller="Dashboard">
                         <i class='bx bx-grid-alt nav_icon'></i>
                         <span class="nav_name">Dashboard</span>
                     </a>
-                    <a class="nav_link" asp-area="" asp-action="Index" asp-controller="AdminReservation">
+                    <a class="nav_link @(currentController == "AdminReservation" && currentAction == "Index" ? "active" : "")" asp-area="" asp-action="Index" asp-controller="AdminReservation">
                         <i class='bx bx-calendar nav_icon'></i>
                         <span class="nav_name">Reservations</span>
+                    </a>
+                    <a class="nav_link @(currentController == "Table" && currentAction == "Index" ? "active" : "")" asp-area="" asp-action="Index" asp-controller="Table">
+                        <i class='bx bx-table nav_icon'></i>
+                        <span class="nav_name">Table Management</span>
                     </a>
                     @*                     <a class="nav_link" asp-area="" asp-action="AdminPayments" asp-controller="Payment">
                     <i class='fas fa-credit-card nav_icon'></i>
@@ -59,21 +67,16 @@
                         <span class="nav_name">Menu Management</span>
                     </a>
                     *@
-                   
-                    <a class="nav_link" asp-area="" asp-action="Index" asp-controller="Table">
-                        <i class='bx bx-table nav_icon'></i>
-                        <span class="nav_name">Table Management</span>
-                    </a>
                     @*
                     <a class="nav_link" asp-area="" asp-action="Index" asp-controller="AuditLogs">
                     <i class='bx bx-history nav_icon'></i>
                     <span class="nav_name">Audit Logs</span>
                     </a>
-                    <a class="nav_link" asp-area="" asp-action="UserRole" asp-controller="Roles">
-                    <i class='bx bx-user nav_icon'></i>
-                    <span class="nav_name">User Management</span>
-                    </a>
                     *@
+                    <a class="nav_link @(currentController == "User" && currentAction == "Index" ? "active" : "")" asp-area="" asp-action="Index" asp-controller="User">
+                        <i class='bx bx-user nav_icon'></i>
+                        <span class="nav_name">User Management</span>
+                    </a>
                 </div>
             </div>
 

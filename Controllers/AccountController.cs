@@ -31,60 +31,69 @@ namespace RRS.Controllers
         [HttpPost]
         public IActionResult LoginUser(User user)
         {
-			if (string.IsNullOrEmpty(user.Email) || string.IsNullOrEmpty(user.Password))
-			{
-				_logger.LogInformation("Email and Password empty {Email} {Password}", user.Email, user.Password);
-				ModelState.AddModelError("", "Email and password are required.");
-				return View("Login", user);  // Specify the correct view name if necessary
-			}
+            if (string.IsNullOrEmpty(user.Email) || string.IsNullOrEmpty(user.Password))
+            {
+                _logger.LogInformation("Email and Password empty {Email} {Password}", user.Email, user.Password);
+                ModelState.AddModelError("", "Email and password are required.");
+                return View("Login", user);
+            }
 
-			// hash the password first
-			user.Password = HashPassword(user.Password);
-			_logger.LogInformation("Password Hashed");
+            try
+            {
+                var emailParam = new SqlParameter("@Email", SqlDbType.VarChar) { Value = user.Email };
 
-			var userCountParam = new SqlParameter("@UserCount", System.Data.SqlDbType.Int) { Direction = ParameterDirection.Output };
-			var roleParam = new SqlParameter("@Role", System.Data.SqlDbType.VarChar, 255) { Direction = ParameterDirection.Output };
+                // Assuming your SP returns User details including hashed password and role
+                var retrievedUser = _context.Users
+                    .FromSqlRaw("EXEC LoginUser @Email", emailParam)
+                    .AsEnumerable()
+                    .FirstOrDefault();
 
-			_context.Database.ExecuteSqlRaw("EXEC LoginUser @Email, @Password, @UserCount OUTPUT, @Role OUTPUT",
-				new SqlParameter("@Email", user.Email),
-				new SqlParameter("@Password", user.Password),
-				userCountParam,
-				roleParam);
+                if (retrievedUser == null)
+                {
+                    _logger.LogInformation("No user found with email: {Email}", user.Email);
+                    ModelState.AddModelError("", "Invalid email or password.");
+                    return View("Login", user);
+                }
 
-			int userCount = (int?)userCountParam.Value ?? 0; // Handle potential null
-			string role = userCount > 0 ? (string)roleParam.Value : null; // Only get the role if user exists
+                // Check password using BCrypt
+                bool isPasswordValid = BCrypt.Net.BCrypt.Verify(user.Password, retrievedUser.Password);
 
-			if (userCount == 1)  // Check if exactly one matching user is found
-			{
-				_logger.LogInformation("Logged in");
-				// Login successful, store the role and other user data if necessary
-				//TempData["SuccessMessage"] = "Login successful!";
+                if (!isPasswordValid)
+                {
+                    _logger.LogInformation("Invalid password for user: {Email}", user.Email);
+                    ModelState.AddModelError("", "Invalid email or password.");
+                    return View("Login", user);
+                }
 
-				//// Optionally, you can store the user's role in session or authentication token
-				////HttpContext.Session.SetString("UserRole", role);  // Example of storing role in session
-				//												  // Store only readily available data in session
-				//HttpContext.Session.SetString("UserEmail", user.Email); // Store the email
-				//HttpContext.Session.SetString("UserRole", role); // Store the role
-				//HttpContext.Session.SetString("LoginTime", DateTime.Now.ToString());
+                // Login successful
+                _logger.LogInformation("User logged in: {Email}", user.Email);
 
-				// Redirect to the appropriate page based on the role
-				if (role == "Admin")
-				{
-					return RedirectToAction("Index", "Dashboard"); // Correct way to redirect
-				}
-				else if (role == "Staff")
-				{
-					return RedirectToAction("Dashboard", "StaffReservation"); // Correct way to redirect
-				}
-			}
+                // Example: Store email & role in session (or use claims)
+                HttpContext.Session.SetString("UserEmail", retrievedUser.Email);
+                HttpContext.Session.SetString("UserRole", retrievedUser.Role);
 
-			_logger.LogInformation("No matching users{Email}{Password}", user.Email, user.Password);
-			// Invalid login attempt
-			ModelState.AddModelError("", "Invalid credentials. Please try again.");
-			return View("Login", user);  // Specify the correct view name if necessary
-		}
+                if (retrievedUser.Role == "Admin")
+                {
+                    return RedirectToAction("Index", "Dashboard");
+                }
+                else if (retrievedUser.Role == "Staff")
+                {
+                    return RedirectToAction("Dashboard", "StaffReservation");
+                }
 
-		[HttpGet]
+                // Default redirect
+                return RedirectToAction("Index", "Home");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred during login.");
+                ModelState.AddModelError("", "An unexpected error occurred. Please try again.");
+                return View("Login", user);
+            }
+        }
+
+
+        [HttpGet]
         public IActionResult Register()
         {
 			User user = new User();

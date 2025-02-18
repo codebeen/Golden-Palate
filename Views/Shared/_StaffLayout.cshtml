@@ -25,6 +25,11 @@
     <script src="~/js/adminLayout.js" defer></script>
 </head>
 <body id="body-pd" class="bg-light" styel="font-family: 'Poppins'">
+    @{
+        var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+        var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    }
+
     <header class="header bg-white" id="header">
         <div class="header_toggle">
             <i class='bx bx-menu' id="header-toggle"></i>
@@ -41,12 +46,12 @@
                     <i class='bx bx-dish nav_logo-icon'></i>
                     <span class="nav_logo-name">Golden Palate</span>
                 </a>
-                <a class="nav_link active" asp-area="" asp-action="Dashboard" asp-controller="StaffReservation">
-                    <i class='bx bx-grid-alt nav_icon'></i>
-                    <span class="nav_name">Dashboard</span>
-                </a>
                 <div class="nav_list">
-                    <a class="nav_link active" asp-area="" asp-action="Index" asp-controller="StaffReservation">
+                    <a class="nav_link @(currentAction == "Dashboard" && currentController == "StaffReservation" ? "active" : "")" asp-area="" asp-action="Dashboard" asp-controller="StaffReservation">
+                        <i class='bx bx-grid-alt nav_icon'></i>
+                        <span class="nav_name">Dashboard</span>
+                    </a>
+                    <a class="nav_link @(currentAction == "Index" && currentController == "StaffReservation" ? "active" : "")" asp-area="" asp-action="Index" asp-controller="StaffReservation">
                         <i class='bx bx-calendar nav_icon'></i>
                         <span class="nav_name">Reservations</span>
                     </a>

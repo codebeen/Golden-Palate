@@ -360,8 +360,6 @@ namespace RRS.Controllers
                         .AsEnumerable()
                         .FirstOrDefault();
 
-                    Console.WriteLine($"Created Reservation ID: {createdReservation.Id}");
-
                     var protector = _dataProtectionProvider.CreateProtector("ReservationIdProtector");
                     string encryptedId = protector.Protect(createdReservation.Id.ToString());
 
@@ -392,7 +390,7 @@ namespace RRS.Controllers
                 <p>Modify or cancel your reservation using the buttons below:</p>
                 <a href='{modifyUrl}' style='padding: 10px 20px; background: #0096FF; color: white; text-decoration: none;'>Modify Reservation</a>
                 <a href='{cancelUrl}' style='padding: 10px 20px; background: #dc3545; color: white; text-decoration: none; margin-left: 10px;'>Cancel Reservation</a>
-                <p>Best regards,<br>Restaurant Management Team</p>
+                <p>Best regards,<br>Golden Palate Team</p>
             ";
 
                     await _emailService.SendEmailAsync(reservation.Customer.Email, subject, body);

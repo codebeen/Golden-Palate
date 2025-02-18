@@ -7,7 +7,7 @@ CREATE PROCEDURE RegisterUser
 AS
 BEGIN
     -- Check if the email already exists
-    IF EXISTS (SELECT 1 FROM Users WHERE Email = @Email)
+    IF EXISTS (SELECT 1 FROM Users WHERE Email = @Email AND IsDeleted = 0)
     BEGIN
         PRINT 'Error: Email already registered';
         RETURN;
