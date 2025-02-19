@@ -72,6 +72,15 @@ namespace RRS.Controllers
                 HttpContext.Session.SetString("UserEmail", retrievedUser.Email);
                 HttpContext.Session.SetString("UserRole", retrievedUser.Role);
 
+                Console.WriteLine(GetAuthenticatedUserEmail());
+
+                if (retrievedUser.Status.ToLower() == "inactive")
+                {
+                    var status = "Active";
+
+                    var resultQuery = _context.Database.ExecuteSqlRaw("EXEC UpdateUserStatus @p0, @p1", retrievedUser.Id, status);
+                }
+
                 if (retrievedUser.Role == "Admin")
                 {
                     return RedirectToAction("Index", "Dashboard");
@@ -145,7 +154,7 @@ namespace RRS.Controllers
 				}
 
 				// Hash the password
-				user.Password = HashPassword(user.Password);
+				user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
 				_logger.LogInformation("Password hashed successfully.");
 
 				// Execute stored procedure
@@ -175,38 +184,39 @@ namespace RRS.Controllers
 		}
 
 		[HttpGet]
-		public IActionResult LogoutUser()
-		{
-			// Debug: Log logout attempt
-			_logger.LogInformation("Logging out user.");
+        public IActionResult LogoutUser()
+        {
+            _logger.LogInformation("Logging out user.");
+            HttpContext.Session.Clear();
+            _logger.LogInformation("User logged out successfully.");
+            return RedirectToAction("Login", "Account");
+        }
 
-			// Clear the session
-			//HttpContext.Session.Clear();  // Clears all session data
 
-			// Optionally, you can also clear authentication cookies if using cookie-based authentication:
-			// _signInManager.SignOutAsync(); // if you are using ASP.NET Identity
+        public string GetAuthenticatedUserEmail()
+        {
+            return HttpContext.Session.GetString("UserEmail");
+        }
 
-			// Log the user out
-			_logger.LogInformation("User logged out successfully.");
+        public string GetAuthenticatedUserRole()
+        {
+            return HttpContext.Session.GetString("UserRole");
+        }
 
-			// Redirect to the Login page or Home page
-			return RedirectToAction("Login", "Account");  // Adjust to your needs
-		}
+        //private string HashPassword(string password)
+        //{
+        //	using (SHA256 sha256 = SHA256.Create())
+        //	{
+        //		byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+        //		return BitConverter.ToString(bytes).Replace("-", "").ToLower();
+        //	}
+        //}
 
-		private string HashPassword(string password)
-		{
-			using (SHA256 sha256 = SHA256.Create())
-			{
-				byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-				return BitConverter.ToString(bytes).Replace("-", "").ToLower();
-			}
-		}
+        //public class LoginResult
+        //{
+        //	public int UserCount { get; set; }
+        //	public string Role { get; set; }
+        //}
 
-		//public class LoginResult
-		//{
-		//	public int UserCount { get; set; }
-		//	public string Role { get; set; }
-		//}
-
-	}
+    }
 }

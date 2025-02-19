@@ -16,9 +16,9 @@
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUser">
             <i class="fa-solid fa-plus"></i>  Add User
         </button>
-        <button type="button" class="btn btn-warning" data-bs-toggle="" data-bs-target="">
+        <a type="button" class="btn btn-warning text-white" asp-action="Export" asp-controller="User">
             <i class="fa-solid fa-download"></i>  Export CSV
-        </button>
+        </a>
     </div>
 </div>
 
@@ -33,6 +33,7 @@
                         <th class="text-center">Full Name</th>
                         <th class="text-center">Email</th>
                         <th class="text-center">Role</th>
+                        <th class="text-center">Status</th>
                         <th class="text-center">Actions</th>
                     </tr>
                 </thead>
@@ -44,6 +45,14 @@
                             <td>@(user.FirstName + " " + user.LastName)</td>
                             <td>@user.Email</td>
                             <td>@user.Role</td>
+                            @if(user.Status.ToLower() == "active")
+                            {
+                                <td class="text-success">@user.Status</td>
+                            }
+                            else if(user.Status.ToLower() == "inactive")
+                            {
+                                <td class="text-danger">@user.Status</td>
+                            }
                             <td class="align-middle text-center">
                                 <div class="d-flex justify-content-center gap-1 flex-wrap">
                                     <button type="button" class="btn btn-outline-warning btn-sm rounded-pill px-2 py-1" data-bs-toggle="modal" data-bs-target="#editUser-@user.Id" data-url="@Url.Action($"Edit/{user.Id}")">

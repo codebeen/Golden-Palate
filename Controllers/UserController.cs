@@ -8,6 +8,7 @@ using RRS.Models;
 using BCrypt.Net;
 using RRS.Services;
 using System.Data;
+using System.Text;
 
 namespace RRS.Controllers
 {
@@ -218,6 +219,28 @@ namespace RRS.Controllers
                 TempData["ErrorMessage"] = "Failed to delete this user.";
                 return RedirectToAction("Index");
             }
+        }
+
+
+        public ActionResult Export()
+        {
+            var users = context.Users.FromSqlRaw("GetAllUsers").ToList();
+
+            var csvFileName = $"users_{DateTime.Now:yyyy-MM-dd}.csv";
+            var csvContent = new StringBuilder();
+
+            // Add CSV headers
+            csvContent.AppendLine("Full Name,Email,Role,Status");
+
+            foreach (var user in users)
+            {
+                csvContent.AppendLine($"{user.FirstName} {user.LastName},{user.Email},{user.Role},{user.Status}");
+            }
+
+            var byteArray = Encoding.UTF8.GetBytes(csvContent.ToString());
+            var stream = new MemoryStream(byteArray);
+
+            return File(stream, "text/csv", csvFileName);
         }
     }
 }

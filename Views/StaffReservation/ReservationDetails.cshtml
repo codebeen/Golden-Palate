@@ -4,13 +4,11 @@
 <div class="modal fade" id="staffViewDetails-@Model.Id" tabindex="-1" role="dialog" aria-labelledby="staffViewDetailsLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header" id="addEditHeader">
                 <h5 class="modal-title" id="staffViewDetailsLabel">Reservation Details for @Model.CustomerFullName</h5>
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body text-start">
                 <p><strong>Reservation Number:</strong> @Model.ReservationNumber</p>
                 <p><strong>Customer Name:</strong> @Model.CustomerFullName</p>
                 <p><strong>Date:</strong> @Model.ReservationDate.ToString("MMMM dd, yyyy")</p>
@@ -58,3 +56,12 @@
         </div>
     </div>
 </div>
+
+<style>
+    #addEditHeader {
+        border-bottom: none;
+        padding: 1.5rem 1.5rem 0.5rem;
+        background: linear-gradient(to right, #0062cc, #0096ff);
+        color: white;
+    }
+</style>

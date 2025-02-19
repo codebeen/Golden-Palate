@@ -203,12 +203,11 @@ a {
     }
 
 .btn-warning {
-    background: linear-gradient(to right, #ff9e00, #ffcc00);
     border: none;
 }
 
     .btn-warning:hover {
-        background: linear-gradient(to right, #ffb84d, #ffdd57);
+        background: #c2831d;
         transform: translateY(-1px);
     }
 

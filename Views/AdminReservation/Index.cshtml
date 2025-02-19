@@ -11,9 +11,9 @@
         <h1 class="fs-4">Reservations</h1>
         <p class="text-secondary">List of all reservations.</p>
     </div>
-    <button type="button" class="btn btn-warning" data-bs-toggle="" data-bs-target="">
+    <a type="button" class="btn btn-warning" asp-action="Export" asp-controller="AdminReservation">
         <i class="fa-solid fa-download"></i>  Export CSV
-    </button>
+    </a>
 </div>
 
 <!-- DataTales Example -->
@@ -100,6 +100,15 @@
 <a class="scroll-to-top rounded" href="#page-top">
     <i class="fas fa-angle-up"></i>
 </a>
+
+<style>
+    #addEditHeader {
+        border-bottom: none;
+        padding: 1.5rem 1.5rem 0.5rem;
+        background: linear-gradient(to right, #0062cc, #0096ff);
+        color: white;
+    }
+</style>
 
 <!-- Bootstrap JS Bundle -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>

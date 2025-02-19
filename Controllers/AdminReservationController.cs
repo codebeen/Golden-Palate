@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using RRS.Data;
 using RRS.Models.ViewModels;
+using System.Text;
 
 namespace RRS.Controllers
 {
@@ -24,7 +25,7 @@ namespace RRS.Controllers
 
         public IActionResult ViewReservationDetails(int id)
         {
-            var getSpecificReservation = context.ReservationDetails.FromSqlRaw($"GetReservationDetailsById {id}").AsEnumerable().FirstOrDefault();
+            var getSpecificReservation = context.ReservationDetails.FromSqlRaw("GetReservationDetailsById @p0", id).AsEnumerable().FirstOrDefault();
 
             if (getSpecificReservation != null)
             {
@@ -34,6 +35,28 @@ namespace RRS.Controllers
             }
 
             return PartialView("ReservationDetails", getSpecificReservation);
+        }
+
+
+        public ActionResult Export()
+        {
+            var reservations = context.ReservationDetails.FromSqlRaw("EXEC GetReservationDetailsFromView").ToList();
+
+            var csvFileName = $"reservations_{DateTime.Now:yyyy-MM-dd}.csv";
+            var csvContent = new StringBuilder();
+
+            // Add CSV headers
+            csvContent.AppendLine("Reservation Number,Reservation Date,Total Price,Table Number,Customer,Buffet Type,Special Request,Status");
+
+            foreach (var reservation in reservations)
+            {
+                csvContent.AppendLine($"{reservation.ReservationNumber},{reservation.ReservationDate},{reservation.TotalPrice.ToString("F2")},{reservation.TableNumber},{reservation.CustomerFullName},{reservation.BuffetType},{reservation.SpecialRequest},{reservation.ReservationStatus}");
+            }
+
+            var byteArray = Encoding.UTF8.GetBytes(csvContent.ToString());
+            var stream = new MemoryStream(byteArray);
+
+            return File(stream, "text/csv", csvFileName);
         }
     }
 }

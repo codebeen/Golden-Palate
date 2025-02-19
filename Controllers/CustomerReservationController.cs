@@ -54,7 +54,7 @@ namespace RRS.Controllers
 
 
                 // get available tables for today and do not have reservation for 8 am to 9 am
-                tableViewModel.Tables = context.Tables.FromSqlRaw($"GetAvailableTablesForToday {tableViewModel.BuffetName}").ToList();
+                tableViewModel.Tables = context.Tables.FromSqlRaw("GetAvailableTablesForToday @p0", tableViewModel.BuffetName).ToList();
 
                 return View("SelectTable", tableViewModel);
             }
@@ -79,7 +79,7 @@ namespace RRS.Controllers
                 TempData["BuffetDetails"] = "The meal period for this buffet is 11:30 AM to 2:00 PM. This buffet will only be available for that range of time.";
 
                 // get available tables for today and do not have reservation for 12 pm to 2pm
-                tableViewModel.Tables = context.Tables.FromSqlRaw($"GetAvailableTablesForToday {tableViewModel.BuffetName}").ToList();
+                tableViewModel.Tables = context.Tables.FromSqlRaw("GetAvailableTablesForToday @p0", tableViewModel.BuffetName).ToList();
 
                 return View("SelectTable", tableViewModel);
             }
@@ -104,7 +104,7 @@ namespace RRS.Controllers
                 TempData["BuffetDetails"] = "The meal period for this buffet is 5:00 PM to 8:00 PM. This buffet will only be available for that range of time.";
 
                 // get available tables for today and do not have reservation for 5 pm to 7pm
-                tableViewModel.Tables = context.Tables.FromSqlRaw($"GetAvailableTablesForToday {tableViewModel.BuffetName}").ToList();
+                tableViewModel.Tables = context.Tables.FromSqlRaw("GetAvailableTablesForToday @p0", tableViewModel.BuffetName).ToList();
 
                 return View("SelectTable", tableViewModel);
             }
@@ -142,11 +142,9 @@ namespace RRS.Controllers
                 string reservationNumber = GenerateSecureReservationNumber();
 
                 var table = context.Tables
-                              .FromSqlRaw($"Exec GetTableById {tableId}")
+                              .FromSqlRaw("Exec GetTableById @p0", tableId)
                               .AsEnumerable()
                               .FirstOrDefault();
-
-
 
                 Console.WriteLine(table.SeatingCapacity);
                 // Create new reservation instance
@@ -250,7 +248,7 @@ namespace RRS.Controllers
                 TempData["BuffetDetails"] = "The meal period for this buffet is 8:00 AM to 10:00 AM. This buffet will only be available for that range of time.";
 
                 // get available tables for today and do not have reservation for 8 am to 9 am
-                tableViewModel.Tables = context.Tables.FromSqlRaw($"GetAvailableTablesForToday {tableViewModel.BuffetName}").ToList();
+                tableViewModel.Tables = context.Tables.FromSqlRaw("GetAvailableTablesForToday @p0", tableViewModel.BuffetName).ToList();
 
                 // Verify the results of the query and make sure ReservedTableIds is populated
                 Console.WriteLine("ReservedTableIds count: " + (reservedTables?.Count ?? 0));
@@ -268,7 +266,7 @@ namespace RRS.Controllers
                 TempData["BuffetDetails"] = "The meal period for this buffet is 11:30 AM to 2:30 PM. This buffet will only be available for that range of time.";
 
                 // get available tables for today and do not have reservation for 12 pm to 2pm
-                tableViewModel.Tables = context.Tables.FromSqlRaw($"GetAvailableTablesForToday {tableViewModel.BuffetName}").ToList();
+                tableViewModel.Tables = context.Tables.FromSqlRaw("GetAvailableTablesForToday @p0", tableViewModel.BuffetName).ToList();
 
                 Console.WriteLine("ReservedTableIds count: " + (reservedTables?.Count ?? 0));
                 TempData["SelectedDate"] = selectedDate;
@@ -286,7 +284,7 @@ namespace RRS.Controllers
                 TempData["BuffetDetails"] = "The meal period for this buffet is 5:00 PM to 8:00 PM. This buffet will only be available for that range of time.";
 
                 // get available tables for today and do not have reservation for 5 pm to 7pm
-                tableViewModel.Tables = context.Tables.FromSqlRaw($"GetAvailableTablesForToday {tableViewModel.BuffetName}").ToList();
+                tableViewModel.Tables = context.Tables.FromSqlRaw("GetAvailableTablesForToday @p0", tableViewModel.BuffetName).ToList();
 
                 Console.WriteLine("ReservedTableIds count: " + (reservedTables?.Count ?? 0));
                 TempData["SelectedDate"] = selectedDate;
@@ -327,8 +325,6 @@ namespace RRS.Controllers
                     .FirstOrDefault(); // Use FirstOrDefault (synchronous)
 
                 var createdCustomerId = createdCustomer.Id;
-
-                Console.WriteLine($"Created Customer ID: {createdCustomerId}");
 
                 if (createdCustomerId == 0)
                 {
@@ -432,7 +428,7 @@ namespace RRS.Controllers
                 var protector = _dataProtectionProvider.CreateProtector("ReservationIdProtector");
                 int id = int.Parse(protector.Unprotect(reservationId));
 
-                var reservationToEdit = context.ReservationDetailsDto.FromSqlRaw($"GetReservationById @p0", id).AsEnumerable().FirstOrDefault();
+                var reservationToEdit = context.ReservationDetailsDto.FromSqlRaw("GetReservationById @p0", id).AsEnumerable().FirstOrDefault();
 
                 if (reservationToEdit == null)
                 {

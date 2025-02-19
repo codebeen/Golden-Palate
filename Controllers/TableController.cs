@@ -3,6 +3,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using RRS.Data;
 using RRS.Models;
+using System.Text;
 
 namespace RRS.Controllers
 {
@@ -116,14 +117,14 @@ namespace RRS.Controllers
                         .Select(e => e.ErrorMessage)
                         .ToList();
 
-                    TempData["ErrorMessage"] = "Validation errors: " + string.Join(", ", errors);
+                    Console.WriteLine(errors);
                     return RedirectToAction("Index");
                 }
             }
             catch (Exception ex)
             {
                 // Log the exception for debugging purposes
-                TempData["ErrorMessage"] = "An error occurred: " + ex.Message;
+                TempData["ErrorMessage"] = "Failed to add the table.";
                 return RedirectToAction("Index");
             }
         }
@@ -133,7 +134,7 @@ namespace RRS.Controllers
         {
             try
             {
-                var tableToEdit = context.Tables.FromSqlRaw($"GetTableById {id}").AsEnumerable().FirstOrDefault();
+                var tableToEdit = context.Tables.FromSqlRaw("GetTableById @p0", id).AsEnumerable().FirstOrDefault();
 
                 return PartialView("EditTableModal", tableToEdit);
             }
@@ -151,7 +152,7 @@ namespace RRS.Controllers
         {
             if (ModelState.IsValid)
             {
-                var existingTable = context.Tables.FromSqlRaw($"GetTableById {table.Id}").AsEnumerable().FirstOrDefault();
+                var existingTable = context.Tables.FromSqlRaw("GetTableById @p0", table.Id).AsEnumerable().FirstOrDefault();
 
                 if (existingTable != null)
                 {
@@ -234,7 +235,7 @@ namespace RRS.Controllers
                     .Select(e => e.ErrorMessage)
                     .ToList();
 
-                TempData["ErrorMessage"] = "Validation errors: " + string.Join(", ", errors);
+                Console.WriteLine(errors);
 
                 // Return the view with the same model to show validation errors
                 return RedirectToAction("Index");
@@ -250,7 +251,7 @@ namespace RRS.Controllers
         {
             try
             {
-                var tableToDelete = context.Tables.FromSqlRaw($"GetTableById {id}").AsEnumerable().FirstOrDefault();
+                var tableToDelete = context.Tables.FromSqlRaw("GetTableById @p0", id).AsEnumerable().FirstOrDefault();
 
                 return PartialView("DeleteTableModal", tableToDelete);
             }
@@ -268,7 +269,7 @@ namespace RRS.Controllers
         {
             try
             {
-                var existingTable = context.Tables.FromSqlRaw($"GetTableById {table.Id}").AsEnumerable().FirstOrDefault();
+                var existingTable = context.Tables.FromSqlRaw("GetTableById @p0", table.Id).AsEnumerable().FirstOrDefault();
 
                 if (existingTable != null)
                 {
@@ -299,6 +300,28 @@ namespace RRS.Controllers
                 TempData["ErrorMessage"] = "An error occurred while deleting the table.";
                 return RedirectToAction("Index");
             }
+        }
+
+
+        public ActionResult Export()
+        {
+            var tables = context.Tables.FromSqlRaw("GetAllTables").ToList();
+
+            var csvFileName = $"tables_{DateTime.Now:yyyy-MM-dd}.csv";
+            var csvContent = new StringBuilder();
+
+            // Add CSV headers
+            csvContent.AppendLine("Table Number,Description,Seating Capacity,Table Location,Price,Status");
+
+            foreach (var table in tables)
+            {
+                csvContent.AppendLine($"{table.TableNumber},{table.Description},{table.SeatingCapacity},{table.TableLocation},{table.Price},{table.Status}");
+            }
+
+            var byteArray = Encoding.UTF8.GetBytes(csvContent.ToString());
+            var stream = new MemoryStream(byteArray);
+
+            return File(stream, "text/csv", csvFileName);
         }
 
     }

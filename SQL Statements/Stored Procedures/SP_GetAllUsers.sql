@@ -8,6 +8,7 @@ BEGIN
         Email,
         Role,
 		Password,
+		Status,
         IsDeleted,
 		CreatedAt,
 		UpdatedAt

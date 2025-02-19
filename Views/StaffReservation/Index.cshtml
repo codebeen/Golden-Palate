@@ -138,6 +138,10 @@
                                             </button>
                                         </form>
                                     }
+
+                                    <button type="submit" class="btn btn-success btn-sm rounded px-3 py-1" data-bs-toggle="modal" data-bs-target="#paymentMethodModal">
+                                        Complete
+                                    </button>
                                 </div>
                             </td>
 
@@ -150,6 +154,8 @@
         </div>
     </div>
 </div>
+
+@await Html.PartialAsync("PaymentMethodModal")
 
 <!-- Scroll to Top Button -->
 <a class="scroll-to-top rounded" href="#page-top">
