@@ -40,9 +40,9 @@ namespace RRS.Controllers
 
         public IActionResult ViewReservationDetailsStaff(int id)
         {
-            var getSpecificReservation = context.ReservationDetails.FromSqlRaw($"GetReservationDetailsById {id}").AsEnumerable().FirstOrDefault();
+            var getSpecificReservation = context.ReservationDetails.FromSqlRaw("GetReservationDetailsById @p0", id).AsEnumerable().FirstOrDefault();
 
-            if (getSpecificReservation != null)
+            if (getSpecificReservation == null)
             {
                 TempData["ErrorMessage"] = "Reservation not found";
 
@@ -50,6 +50,35 @@ namespace RRS.Controllers
             }
 
             return PartialView("ReservationDetails", getSpecificReservation);
+        }
+
+        public IActionResult ShowPaymentMethodModal(int id)
+        {
+            var reservationToPay = context.ReservationDetails.FromSqlRaw("GetReservationDetailsById @p0", id).AsEnumerable().FirstOrDefault();
+
+            if (reservationToPay == null)
+            {
+                TempData["ErrorMessage"] = "Reservation not found";
+
+                return RedirectToAction("Index");
+            }
+
+            return PartialView("PaymentMethodModal", reservationToPay);
+        }
+
+        [HttpPost]
+        public IActionResult ShowCashModal(int id)
+        {
+            var reservationToPay = context.ReservationDetails.FromSqlRaw("GetReservationDetailsById @p0", id).AsEnumerable().FirstOrDefault();
+
+            if (reservationToPay == null)
+            {
+                TempData["ErrorMessage"] = "Reservation not found";
+
+                return RedirectToAction("Index");
+            }
+
+            return PartialView("CashModal", reservationToPay);
         }
 
         [HttpPost]
@@ -163,7 +192,7 @@ namespace RRS.Controllers
         }
 
 
-        [HttpPost]
+        [HttpGet]
         public IActionResult CompleteReservation(int reservationId)
         {
             var status = "Completed";

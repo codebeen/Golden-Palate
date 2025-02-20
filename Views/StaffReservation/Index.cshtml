@@ -131,17 +131,11 @@
 
                                     @if (reservation.ReservationStatus.ToLower() == "ongoing")
                                     {
-                                        <form method="post" asp-action="CompleteReservation" asp-controller="StaffReservation" class="d-inline-block">
-                                            <input type="hidden" name="reservationId" value="@reservation.Id" />
-                                            <button type="submit" class="btn btn-success btn-sm rounded px-3 py-1">
-                                                Complete
-                                            </button>
-                                        </form>
+                                        <button type="button" class="btn btn-success btn-sm rounded px-3 py-1" data-bs-toggle="modal" data-bs-target="#paymentMethodModal-@reservation.Id" data-url="@Url.Action($"ShowPaymentMethodModal/{reservation.Id}")">
+                                            Complete
+                                        </button>
+                                        @await Html.PartialAsync("PaymentMethodModal", reservation)
                                     }
-
-                                    <button type="submit" class="btn btn-success btn-sm rounded px-3 py-1" data-bs-toggle="modal" data-bs-target="#paymentMethodModal">
-                                        Complete
-                                    </button>
                                 </div>
                             </td>
 
@@ -154,8 +148,6 @@
         </div>
     </div>
 </div>
-
-@await Html.PartialAsync("PaymentMethodModal")
 
 <!-- Scroll to Top Button -->
 <a class="scroll-to-top rounded" href="#page-top">

@@ -3,6 +3,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using RRS.Data;
 using RRS.Models;
+using System.Text;
 
 namespace RRS.Controllers
 {
@@ -24,45 +25,98 @@ namespace RRS.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            var payments = context.PaymentDetails.FromSqlRaw("EXEC GetAllPaymentDetailsFromView").ToList();
+
+            return View("Index", payments);
+        }
+
+
+        public IActionResult ViewPaymentDetails(int id)
+        {
+            var getSpecificPayment = context.PaymentDetails.FromSqlRaw("GetPaymentDetailsById @p0", id).AsEnumerable().FirstOrDefault();
+
+            if (getSpecificPayment != null)
+            {
+                TempData["ErrorMessage"] = "Payment not found";
+
+                return RedirectToAction("Index");
+            }
+
+            return PartialView("PaymentDetails", getSpecificPayment);
+        }
+
+        public ActionResult Export()
+        {
+            var payments = context.PaymentDetails.FromSqlRaw("EXEC GetAllPaymentDetailsFromView").ToList();
+
+            var csvFileName = $"payments_{DateTime.Now:yyyy-MM-dd}.csv";
+            var csvContent = new StringBuilder();
+
+            // Add CSV headers
+            csvContent.AppendLine("Customer Name,Reservation Number,Amount,Description,Issued By,Payment Method,Date Created");
+
+            foreach (var payment in payments)
+            {
+                csvContent.AppendLine($"{payment.CustomerFullName},{payment.ReservationNumber},{payment.Amount},{payment.Description},{payment.UserFullName},{payment.ModeOfPayment},{payment.CreatedAt.ToString("MMMM dd, yyyy")}");
+            }
+
+            var byteArray = Encoding.UTF8.GetBytes(csvContent.ToString());
+            var stream = new MemoryStream(byteArray);
+
+            return File(stream, "text/csv", csvFileName);
         }
 
 
         [HttpPost]
-        public IActionResult StorePayment(Payment payment)
+        public IActionResult StorePayment(decimal amount, string? description, int reservationId, string modeOfPayment)
         {
             var authenticatedEmail = GetAuthenticatedUserEmail();
+            var authenticatedUser = context.Users.FromSqlRaw("EXEC GetUserByEmail @p0", authenticatedEmail).AsEnumerable().FirstOrDefault();
+
+            if (authenticatedUser == null)
+            {
+                return Json(new { success = false, message = "Unauthorized access." });
+            }
 
             try
             {
-                var paymentParameter = new SqlParameter[]
+                var parameters = new[]
                 {
-                    new SqlParameter() { ParameterName = "@Amount", SqlDbType = System.Data.SqlDbType.Decimal, Value = payment.Amount },
-                    new SqlParameter() { ParameterName = "@Description", SqlDbType = System.Data.SqlDbType.VarChar, Value = payment.Description },
-                    new SqlParameter() { ParameterName = "@ReservationId", SqlDbType = System.Data.SqlDbType.Int, Value = payment.ReservationId },
-                    new SqlParameter() { ParameterName = "@UserId", SqlDbType = System.Data.SqlDbType.Int, Value = payment.UserId},
-                    new SqlParameter() { ParameterName = "@ModeOfPayment", SqlDbType = System.Data.SqlDbType.VarChar, Value = payment.ModeOfPayment},
+                    new SqlParameter("@Amount", System.Data.SqlDbType.Decimal) { Value = amount },
+                    new SqlParameter("@Description", System.Data.SqlDbType.VarChar) { Value = (object?)description ?? DBNull.Value },
+                    new SqlParameter("@ReservationId", System.Data.SqlDbType.Int) { Value = reservationId },
+                    new SqlParameter("@UserId", System.Data.SqlDbType.Int) { Value = authenticatedUser.Id },
+                    new SqlParameter("@ModeOfPayment", System.Data.SqlDbType.VarChar) { Value = modeOfPayment }
                 };
 
-
-                var result = context.Database.ExecuteSqlRaw("Exec CreatePayment @Amount, @Description, @ReservationId, @UserId, @ModeOfPayment", paymentParameter);
+                var result = context.Database.ExecuteSqlRaw("EXEC CreatePayment @Amount, @Description, @ReservationId, @UserId, @ModeOfPayment", parameters);
 
                 if (result > 0)
                 {
-                    TempData["SuccessPayment"] = "Successfully processed the payment.";
-                    return RedirectToAction("Index", "StaffReservation");
-                }
+                    // Update reservation status to 'Completed'
+                    var statusParameters = new[]
+                    {
+                        new SqlParameter("@Id", System.Data.SqlDbType.Int) { Value = reservationId },
+                        new SqlParameter("@Status", System.Data.SqlDbType.VarChar) { Value = "Completed" }
+                    };
 
-                TempData["ErrorMessage"] = "Failed to process the payment.";
-                return RedirectToAction("Index", "StaffReservation");
+                    context.Database.ExecuteSqlRaw("EXEC UpdateReservationStatus @Id, @Status", statusParameters);
+
+                    return Json(new { success = true, reservationId });
+                }
+                else
+                {
+                    return Json(new { success = false, message = "Failed to process the payment." });
+                }
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
-                TempData["ErrorMessage"] = "Failed to process the payment.";
-                return RedirectToAction("Index", "StaffReservation");
+                logger.LogError(ex, "Error processing payment.");
+                return Json(new { success = false, message = "An error occurred while processing the payment." });
             }
         }
+
+
 
 
         //[HttpPost]

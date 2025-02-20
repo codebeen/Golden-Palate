@@ -59,24 +59,23 @@
                         <i class='bx bx-table nav_icon'></i>
                         <span class="nav_name">Table Management</span>
                     </a>
-                    @*                     <a class="nav_link" asp-area="" asp-action="AdminPayments" asp-controller="Payment">
-                    <i class='fas fa-credit-card nav_icon'></i>
-                    <span class="nav_name">Payments</span>
+                    <a class="nav_link @(currentController == "Payment" && currentAction == "Index" ? "active" : "")" asp-area="" asp-action="Index" asp-controller="Payment">
+                        <i class='bx bx-credit-card nav_icon'></i>
+                        <span class="nav_name">Payments</span>
                     </a>
+                    @*                     
                      <a class="nav_link" asp-area="" asp-action="Index" asp-controller="Menu">
                         <i class='bx bx-food-menu nav_icon'></i>
                         <span class="nav_name">Menu Management</span>
                     </a>
                     *@
-                    @*
-                    <a class="nav_link" asp-area="" asp-action="Index" asp-controller="AuditLogs">
-                    <i class='bx bx-history nav_icon'></i>
-                    <span class="nav_name">Audit Logs</span>
-                    </a>
-                    *@
                     <a class="nav_link @(currentController == "User" && currentAction == "Index" ? "active" : "")" asp-area="" asp-action="Index" asp-controller="User">
                         <i class='bx bx-user nav_icon'></i>
                         <span class="nav_name">User Management</span>
+                    </a>
+                    <a class="nav_link" asp-area="" asp-action="" asp-controller="">
+                        <i class='bx bx-history nav_icon'></i>
+                        <span class="nav_name">Audit Logs</span>
                     </a>
                 </div>
             </div>

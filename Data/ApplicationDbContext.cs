@@ -17,5 +17,7 @@ namespace RRS.Data
         public DbSet<Reservation> Reservations { get; set; }
         public DbSet<ReservationDetailsViewModel> ReservationDetails { get; set; }
         public DbSet<ReservationDetailsDto> ReservationDetailsDto { get; set; }
+
+        public DbSet<PaymentDetailsViewModel> PaymentDetails { get; set; }
     }
 }

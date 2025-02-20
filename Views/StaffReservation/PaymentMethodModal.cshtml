@@ -1,5 +1,7 @@
-﻿<!-- Payment Method Selection Modal -->
-<div class="modal fade" id="paymentMethodModal" tabindex="-1" aria-labelledby="paymentMethodModalLabel" aria-hidden="true">
+﻿@model RRS.Models.ViewModels.ReservationDetailsViewModel
+
+<!-- Payment Method Selection Modal -->
+<div class="modal fade" id="paymentMethodModal-@Model.Id" tabindex="-1" aria-labelledby="paymentMethodModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header text-white" id="addEditHeader">
@@ -9,7 +11,7 @@
             <div class="modal-body text-center">
                 <p>Please select your preferred payment method:</p>
                 <div class="d-grid gap-3">
-                    <button class="btn btn-outline-info btn-lg text-dark" id="cashPaymentButton">Cash</button>
+                    <button type="button" class="btn btn-outline-info btn-lg text-dark" onclick="openCashModal(@Model.Id)">Cash</button>
                     <button class="btn btn-outline-info btn-lg text-dark" id="cashlessPaymentButton">Cashless</button>
                 </div>
             </div>
@@ -17,10 +19,191 @@
     </div>
 </div>
 
+<!-- Cash Payment Modal -->
+<div class="modal fade" id="cashModal-@Model.Id" tabindex="-1" aria-labelledby="cashModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header text-white" id="addEditHeader">
+                <h5 class="modal-title" id="cashModalLabel">Process Cash Payment</h5>
+                <button type="button" class="btn-close" aria-label="Close" onclick="closeBothModals(@Model.Id)"></button>
+            </div>
+            <div class="modal-body text-center">
+                <p>Payment Summary:</p>
+                <p>Reservation Number: <strong>@Model.ReservationNumber</strong></p>
+                <p>Amount to be Paid: <strong id="totalPrice-@Model.Id">@Model.TotalPrice</strong></p>
+
+                <form id="cashPaymentForm-@Model.Id" data-reservation-id="@Model.Id" data-total-price="@Model.TotalPrice">
+                    <input type="hidden" name="reservationId" value="@Model.Id" />
+                    <input type="hidden" name="amount" value="@Model.TotalPrice" />
+                    <input type="hidden" name="modeOfPayment" value="Cash" />
+
+                    <div class="mb-3">
+                        <label for="cashInput-@Model.Id" class="form-label">Enter Cash Amount:</label>
+                        <input type="number" step="0.01" id="cashInput-@Model.Id" class="form-control cashInput" name="cashAmount" required />
+                    </div>
+
+                    <button type="button" class="btn btn-success cashPaymentSubmit" data-reservation-id="@Model.Id">Submit Payment</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Receipt Modal -->
+<div class="modal fade" id="receiptModal" tabindex="-1" aria-labelledby="receiptModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Receipt</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="receiptContent">
+                <div class="text-center mb-3">
+                    <h5>Golden Palate</h5>
+                    <p id="receiptDate"></p>
+                    <hr />
+                </div>
+                <p class="text-start"><strong>Reservation Number:</strong> <span id="receiptReservationNumber"></span></p>
+                <p class="text-start"><strong>Total Price:</strong> <span id="receiptTotalPrice"></span></p>
+                <p class="text-start"><strong>Cash Received:</strong> <span id="receiptCashAmount"></span></p>
+                <p class="text-start"><strong>Change:</strong> <span id="receiptChange"></span></p>
+                <hr />
+                <p class="text-center">Thank you for your business!</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="printReceipt()">Print Receipt</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.cashPaymentSubmit').forEach(button => {
+            button.addEventListener('click', function () {
+                const reservationId = this.getAttribute('data-reservation-id');
+                const form = document.querySelector(`#cashPaymentForm-${reservationId}`);
+                const totalPrice = parseFloat(form.getAttribute('data-total-price'));
+                const cashInputValue = parseFloat(form.querySelector('.cashInput').value);
+
+                if (isNaN(cashInputValue) || cashInputValue < totalPrice) {
+                    alert('Cash amount must be equal to or greater than the total price.');
+                    return;
+                }
+
+                const formData = new FormData(form);
+
+                fetch('/Payment/StorePayment', {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(response => response.json()) // Assuming JSON response
+                    .then(data => {
+                        if (data.success) {
+                            const change = cashInputValue - totalPrice;
+                            const currentDate = new Date().toLocaleString();
+
+                            document.getElementById('receiptReservationNumber').innerText = reservationId;
+                            document.getElementById('receiptTotalPrice').innerText = totalPrice.toFixed(2);
+                            document.getElementById('receiptCashAmount').innerText = cashInputValue.toFixed(2);
+                            document.getElementById('receiptChange').innerText = change.toFixed(2);
+                            document.getElementById('receiptDate').innerText = currentDate;
+
+                            // Close the payment and cash modals
+                            closeBothModals(reservationId);
+
+                            // Show the receipt modal
+                            const receiptModal = new bootstrap.Modal(document.getElementById('receiptModal'));
+                            receiptModal.show();
+                        } else {
+                            alert(data.message || 'Payment failed.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred while processing the payment.');
+                    });
+            });
+        });
+    });
+
+
+    function closeBothModals(reservationId) {
+        const cashModal = document.getElementById(`cashModal-${reservationId}`);
+        const paymentMethodModal = document.getElementById(`paymentMethodModal-${reservationId}`);
+
+        const cashModalInstance = bootstrap.Modal.getInstance(cashModal);
+        const paymentMethodModalInstance = bootstrap.Modal.getInstance(paymentMethodModal);
+
+        if (cashModalInstance) cashModalInstance.hide();
+        if (paymentMethodModalInstance) paymentMethodModalInstance.hide();
+
+        // Remove any lingering backdrops
+        removeModalBackdrops();
+    }
+
+    function openCashModal(reservationId) {
+        const paymentMethodModal = document.getElementById(`paymentMethodModal-${reservationId}`);
+        const cashModal = new bootstrap.Modal(document.getElementById(`cashModal-${reservationId}`));
+
+        // Hide the payment method modal
+        const paymentMethodModalInstance = bootstrap.Modal.getInstance(paymentMethodModal);
+        if (paymentMethodModalInstance) {
+            paymentMethodModalInstance.hide();
+        }
+
+        // Ensure backdrop is removed before showing the new modal
+        removeModalBackdrops();
+
+        // Show the cash modal
+        cashModal.show();
+    }
+
+    function removeModalBackdrops() {
+        const backdrops = document.querySelectorAll('.modal-backdrop');
+        backdrops.forEach(backdrop => backdrop.remove());
+    }
+
+    function validateCashInput(reservationId, totalPrice) {
+        const cashInput = parseFloat(document.getElementById(`cashInput-${reservationId}`).value);
+
+        if (cashInput < totalPrice) {
+            alert('Cash amount must be equal to or greater than the total price.');
+            return false;
+        }
+
+        setTimeout(() => showReceiptModal(reservationId, totalPrice, cashInput), 1000);
+
+        return true;
+    }
+
+    function showReceiptModal(reservationId, totalPrice, cashInput) {
+        const change = cashInput - totalPrice;
+        const currentDate = new Date().toLocaleString();
+
+        document.getElementById('receiptReservationNumber').innerText = reservationId;
+        document.getElementById('receiptTotalPrice').innerText = totalPrice.toFixed(2);
+        document.getElementById('receiptCashAmount').innerText = cashInput.toFixed(2);
+        document.getElementById('receiptChange').innerText = change.toFixed(2);
+        document.getElementById('receiptDate').innerText = currentDate;
+
+        const receiptModal = new bootstrap.Modal(document.getElementById('receiptModal'));
+        receiptModal.show();
+    }
+
+    function printReceipt() {
+        const printContent = document.getElementById('receiptContent').innerHTML;
+        const originalContents = document.body.innerHTML;
+
+        document.body.innerHTML = '<div style="font-family: Courier New, monospace;">' + printContent + '</div>';
+        window.print();
+        document.body.innerHTML = originalContents;
+        window.location.reload();
+    }
+</script>
+
 <style>
     #addEditHeader {
-        border-bottom: none;
-        padding: 1.5rem 1.5rem 0.5rem;
         background: linear-gradient(to right, #0062cc, #0096ff);
         color: white;
     }

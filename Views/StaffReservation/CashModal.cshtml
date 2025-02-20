@@ -1,0 +1,104 @@
+﻿@model Reservation
+
+<!-- Cash Payment Modal -->
+<div class="modal fade" id="cashModal-@Model.Id" tabindex="-1" aria-labelledby="cashModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header text-white" id="addEditHeader">
+                <h5 class="modal-title" id="cashModalLabel">Process Cash Payment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <p>Payment Summary:</p>
+                <p>Reservation Number: <strong>@Model.ReservationNumber</strong></p>
+                <p>Amount to be Paid: <strong id="totalPrice">@Model.TotalPrice</strong></p>
+
+                <form id="cashPaymentForm" asp-action="StorePayment" asp-controller="Payment" method="post" onsubmit="return validateCashInput(@Model.TotalPrice)">
+                    <input type="hidden" name="reservationId" value="@Model.Id" />
+                    <input type="hidden" name="amount" value="@Model.TotalPrice" />
+                    <input type="hidden" name="modeOfPayment" value="Cash" />
+
+                    <div class="mb-3">
+                        <label for="cashInput" class="form-label">Enter Cash Amount:</label>
+                        <input type="number" step="0.01" id="cashInput" class="form-control" name="cashAmount" required />
+                    </div>
+
+                    <button type="submit" class="btn btn-success">Submit Payment</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Receipt Modal -->
+<div class="modal fade" id="receiptModal" tabindex="-1" aria-labelledby="receiptModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Receipt</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="receiptContent" style="font-family: 'Courier New', monospace;">
+                <div class="text-center mb-3">
+                    <h5>Golden Palate</h5>
+                    <p id="receiptDate"></p>
+                    <hr />
+                </div>
+                <p><strong>Reservation Number:</strong> <span id="receiptReservationNumber"></span></p>
+                <p><strong>Total Price:</strong> <span id="receiptTotalPrice"></span></p>
+                <p><strong>Cash Received:</strong> <span id="receiptCashAmount"></span></p>
+                <p><strong>Change:</strong> <span id="receiptChange"></span></p>
+                <hr />
+                <p class="text-center">Thank you for your business!</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="printReceipt()">Print Receipt</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function validateCashInput(totalPrice) {
+        const cashInput = parseFloat(document.getElementById('cashInput').value);
+
+        if (cashInput < totalPrice) {
+            alert('Cash amount must be equal to or greater than the total price.');
+            return false;
+        }
+
+        setTimeout(() => showReceiptModal(totalPrice, cashInput), 1000);
+
+        return true;
+    }
+
+    function showReceiptModal(totalPrice, cashInput) {
+        const change = cashInput - totalPrice;
+        const currentDate = new Date().toLocaleString();
+
+        document.getElementById('receiptReservationNumber').innerText = '@Model.ReservationNumber';
+        document.getElementById('receiptTotalPrice').innerText = totalPrice.toFixed(2);
+        document.getElementById('receiptCashAmount').innerText = cashInput.toFixed(2);
+        document.getElementById('receiptChange').innerText = change.toFixed(2);
+        document.getElementById('receiptDate').innerText = currentDate;
+
+        new bootstrap.Modal(document.getElementById('receiptModal')).show();
+    }
+
+    function printReceipt() {
+        const printContent = document.getElementById('receiptContent').innerHTML;
+        const originalContents = document.body.innerHTML;
+
+        document.body.innerHTML = '<div style="font-family: Courier New, monospace;">' + printContent + '</div>';
+        window.print();
+        document.body.innerHTML = originalContents;
+        window.location.reload();
+    }
+</script>
+
+<style>
+    #addEditHeader {
+        background: linear-gradient(to right, #0062cc, #0096ff);
+        color: white;
+    }
+</style>

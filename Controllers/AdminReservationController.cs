@@ -27,7 +27,7 @@ namespace RRS.Controllers
         {
             var getSpecificReservation = context.ReservationDetails.FromSqlRaw("GetReservationDetailsById @p0", id).AsEnumerable().FirstOrDefault();
 
-            if (getSpecificReservation != null)
+            if (getSpecificReservation == null)
             {
                 TempData["ErrorMessage"] = "Reservation not found";
 

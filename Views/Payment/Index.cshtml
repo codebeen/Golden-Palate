@@ -1,21 +1,20 @@
-﻿@{
+﻿@model IEnumerable<RRS.Models.ViewModels.PaymentDetailsViewModel>
+
+@{
     ViewData["Title"] = "Payments";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    int counter = 1;
 }
 
-﻿@{
-    ViewData["Title"] = "Payments";
-}
 
 <div class="text-left mb-2 d-flex align-items-center justify-content-between">
     <div>
         <h1 class="fs-4">Payments</h1>
-        <p class="text-secondary">Records of all the payments made by customers.</p>
+        <p class="text-secondary">List of all payments.</p>
     </div>
-
-    @* <button type="button" class="btn btn-warning" data-bs-toggle="" data-bs-target=""> *@
-    @*     <i class="fa-solid fa-download"></i>  Export CSV *@
-    @* </button> *@
+    <a type="button" class="btn btn-warning" asp-action="Export" asp-controller="Payment">
+        <i class="fa-solid fa-download"></i>  Export CSV
+    </a>
 </div>
 
 
@@ -26,25 +25,39 @@
             <table class="table table-hover text-center" id="paymentsTable">
                 <thead>
                     <tr>
-                        <th>Payment Method</th>
-                        <th>Customer</th>
-                        <th>Total Amount</th>
-                        <th>Status</th>
-                        <th>Action</th>
+                        <th class="text-center">No.</th>
+                        <th class="text-center">Customer</th>
+                        <th class="text-center">Reservation Number</th>
+                        <th class="text-center">Description</th>
+                        <th class="text-center">Amount</th>
+                        <th class="text-center">Issued By</th>
+                        <th class="text-center">Payment Method</th>
+                        <th class="text-center">Date Created</th>
+                        <th class="text-center">Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td>
-                            <button type="button" class="btn btn-info btn-sm rounded px-3 py-1" data-toggle="modal" data-bs-target="" data-url="">
-                                View
-                            </button>
-                        </td>
-                    </tr>
+                    @foreach (var payment in Model)
+                    {
+                        <tr>
+                            <td>@counter</td>
+                            <td>@payment.CustomerFullName</td>
+                            <td>@payment.ReservationNumber</td>
+                            <td>@payment.Description</td>
+                            <td>₱@payment.Amount.ToString("F2")</td>
+                            <td>@payment.UserFullName</td>
+                            <td>@payment.ModeOfPayment</td>
+                            <td>@payment.CreatedAt.ToString("MMMM dd, yyyy")</td>
+                            <td class="align-middle text-center">
+                                <button type="button" class="btn btn-info btn-sm rounded px-3 py-1" data-bs-toggle="modal" data-bs-target="#viewPaymentDetails-@payment.Id" data-url="@Url.Action($"ViewPaymentDetails/{payment.Id}")">
+                                    View
+                                </button>
+                                @await Html.PartialAsync("PaymentDetails", payment)
+                            </td>
+                        </tr>
+
+                        counter++;
+                    }
                 </tbody>
             </table>
         </div>

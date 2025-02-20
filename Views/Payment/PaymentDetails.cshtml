@@ -1,0 +1,24 @@
+﻿@model RRS.Models.ViewModels.PaymentDetailsViewModel
+
+<!-- Modal -->
+<div class="modal fade" id="viewPaymentDetails-@Model.Id" tabindex="-1" role="dialog" aria-labelledby="viewPaymentDetailsLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header" id="addEditHeader">
+                <h5 class="modal-title" id="viewPaymentDetailsLabel">@Model.Description</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-start">
+                <p><strong>Reservation Number:</strong> @Model.ReservationNumber</p>
+                <p><strong>Customer Name:</strong> @Model.CustomerFullName</p>
+                <p><strong>Amount:</strong> ₱@Model.Amount</p>
+                <p><strong>Issued By:</strong> @Model.UserFullName</p>
+                <p><strong>Payment Method:</strong> @Model.ModeOfPayment</p>
+                <p><strong>Created Date:</strong> @Model.CreatedAt.ToString("MMMM dd, yyyy")</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
