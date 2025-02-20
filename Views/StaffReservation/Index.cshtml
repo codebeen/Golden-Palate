@@ -136,6 +136,11 @@
                                         </button>
                                         @await Html.PartialAsync("PaymentMethodModal", reservation)
                                     }
+
+                                    <button onclick="showPaymentMethodModal('@reservation.Id')" type="button" class="btn btn-success btn-sm rounded px-3 py-1" data-bs-toggle="modal" data-bs-target="#paymentMethodModal-@reservation.Id" data-url="@Url.Action($"ShowPaymentMethodModal/{reservation.Id}")">
+                                        Complete
+                                    </button>
+                                    @await Html.PartialAsync("PaymentMethodModal", reservation)
                                 </div>
                             </td>
 
@@ -158,6 +163,26 @@
     $(document).ready(function () {
         new DataTable('#reservationTable');
     });
+
+    function showPaymentMethodModal(reservationId) {
+        // Clear any existing modal backdrops
+        removeModalBackdrops();
+
+        // Find and show the Payment Method Modal
+        const modalElement = document.getElementById(`paymentMethodModal-${reservationId}`);
+
+        if (modalElement) {
+            const paymentMethodModal = new bootstrap.Modal(modalElement);
+            paymentMethodModal.show();
+        } else {
+            console.error(`Modal with ID paymentMethodModal-${reservationId} not found`);
+        }
+    }
+
+    function removeModalBackdrops() {
+        const backdrops = document.querySelectorAll('.modal-backdrop');
+        backdrops.forEach(backdrop => backdrop.remove());
+    }
 
     @if (TempData["SuccessMessage"] != null)
     {
@@ -212,6 +237,8 @@
             }
         });
     }
+
+    
 </script>
 
 <!-- Bootstrap JS Bundle -->

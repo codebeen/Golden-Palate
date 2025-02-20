@@ -1,0 +1,42 @@
+﻿@{
+    decimal amount = (decimal)ViewData["Amount"];
+    string description = (string)ViewData["Description"];
+    int reservationId = (int)ViewData["ReservationId"];
+    string modeOfPayment = (string)ViewData["ModeOfPayment"];
+}
+
+<form id="storePaymentForm" method="post" asp-action="StorePayment" asp-controller="Payment">
+    <input type="hidden" name="amount" value="@amount" />
+    <input type="hidden" name="description" value="@description" />
+    <input type="hidden" name="reservationId" value="@reservationId" />
+    <input type="hidden" name="modeOfPayment" value="@modeOfPayment" />
+</form>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('storePaymentForm');
+        const formData = new FormData(form);
+
+        fetch(form.action, {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = data.redirectUrl; // Redirect if success
+                } else {
+                    alert(data.message || 'Payment failed. Please try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Payment error:', error);
+                alert('An error occurred while processing the payment.');
+            });
+    });
+</script>
+
+<noscript>
+    <p>JavaScript is required for automatic submission. Please click the button below if you are not redirected.</p>
+    <button type="submit" form="storePaymentForm">Submit Payment</button>
+</noscript>

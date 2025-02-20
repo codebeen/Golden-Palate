@@ -1,34 +1,53 @@
-﻿@model Reservation
+﻿@model RRS.Models.ViewModels.ReservationDetailsViewModel
 
-<!-- Cash Payment Modal -->
-<div class="modal fade" id="cashModal-@Model.Id" tabindex="-1" aria-labelledby="cashModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header text-white" id="addEditHeader">
-                <h5 class="modal-title" id="cashModalLabel">Process Cash Payment</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+@{
+    ViewData["Title"] = "Cash Payment";
+    Layout = "~/Views/Shared/_StaffLayout.cshtml";
+}
+
+<div class="container-md mt-5">
+    <div class="card p-0">
+        <div class="card-header bg-primary text-white py-3">
+            <h5 class="mb-0">Process Cash Payment</h5>
+        </div>
+        <div class="card-body pb-5 px-5">
+            <p class="text-center">Payment Summary:</p>
+
+            <div class="mb-3 row">
+                <label class="col-sm-2 col-form-label">Reservation Number:</label>
+                <div class="col-sm-8 d-flex align-items-center">
+                    <p class="mb-0"><strong>@Model.ReservationNumber</strong></p>
+                </div>
             </div>
-            <div class="modal-body text-center">
-                <p>Payment Summary:</p>
-                <p>Reservation Number: <strong>@Model.ReservationNumber</strong></p>
-                <p>Amount to be Paid: <strong id="totalPrice">@Model.TotalPrice</strong></p>
 
-                <form id="cashPaymentForm" asp-action="StorePayment" asp-controller="Payment" method="post" onsubmit="return validateCashInput(@Model.TotalPrice)">
-                    <input type="hidden" name="reservationId" value="@Model.Id" />
-                    <input type="hidden" name="amount" value="@Model.TotalPrice" />
-                    <input type="hidden" name="modeOfPayment" value="Cash" />
+            <div class="mb-3 row">
+                <label class="col-sm-2 col-form-label">Amount to be Paid:</label>
+                <div class="col-sm-8 d-flex align-items-center">
+                   <p class="mb-0"><strong id="totalPrice-@Model.Id">@Model.TotalPrice.ToString("C", new System.Globalization.CultureInfo("en-PH"))</strong></p>
+                </div>
+            </div>
 
-                    <div class="mb-3">
-                        <label for="cashInput" class="form-label">Enter Cash Amount:</label>
-                        <input type="number" step="0.01" id="cashInput" class="form-control" name="cashAmount" required />
-                    </div>
+            <form asp-action="StorePayment" asp-controller="Payment" method="post">
+                <input type="hidden" name="reservationId" value="@Model.Id" />
+                <input type="hidden" name="amount" value="@Model.TotalPrice" />
+                <input type="hidden" name="modeOfPayment" value="Cash" />
+                <input type="hidden" name="description" value="Payment for @Model.ReservationNumber" />
 
+                <div class="mb-3">
+                    <label for="cashInput-@Model.Id" class="form-label">Enter Cash Amount:</label>
+                    <input type="number" step="0.01" id="cashInput-@Model.Id" class="form-control" name="cashAmount" required />
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a asp-action="Index" asp-controller="StaffReservation" class="btn btn-secondary">Cancel</a>
                     <button type="submit" class="btn btn-success">Submit Payment</button>
-                </form>
-            </div>
+                </div>
+            </form>
         </div>
     </div>
 </div>
+
+
 
 <!-- Receipt Modal -->
 <div class="modal fade" id="receiptModal" tabindex="-1" aria-labelledby="receiptModalLabel" aria-hidden="true">
@@ -38,16 +57,16 @@
                 <h5 class="modal-title">Receipt</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body" id="receiptContent" style="font-family: 'Courier New', monospace;">
+            <div class="modal-body" id="receiptContent">
                 <div class="text-center mb-3">
                     <h5>Golden Palate</h5>
                     <p id="receiptDate"></p>
                     <hr />
                 </div>
-                <p><strong>Reservation Number:</strong> <span id="receiptReservationNumber"></span></p>
-                <p><strong>Total Price:</strong> <span id="receiptTotalPrice"></span></p>
-                <p><strong>Cash Received:</strong> <span id="receiptCashAmount"></span></p>
-                <p><strong>Change:</strong> <span id="receiptChange"></span></p>
+                <p class="text-start"><strong>Reservation Number:</strong> <span id="receiptReservationNumber"></span></p>
+                <p class="text-start"><strong>Total Price:</strong> <span id="receiptTotalPrice"></span></p>
+                <p class="text-start"><strong>Cash Received:</strong> <span id="receiptCashAmount"></span></p>
+                <p class="text-start"><strong>Change:</strong> <span id="receiptChange"></span></p>
                 <hr />
                 <p class="text-center">Thank you for your business!</p>
             </div>
@@ -58,47 +77,81 @@
     </div>
 </div>
 
+
 <script>
-    function validateCashInput(totalPrice) {
-        const cashInput = parseFloat(document.getElementById('cashInput').value);
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.querySelector('form');
+        const cashInput = document.getElementById('cashInput-@Model.Id');
+        const totalPriceElement = document.getElementById('totalPrice-@Model.Id');
 
-        if (cashInput < totalPrice) {
-            alert('Cash amount must be equal to or greater than the total price.');
-            return false;
-        }
+        const totalPrice = parseFloat(totalPriceElement.innerText.replace(/[^0-9.-]+/g, ''));
 
-        setTimeout(() => showReceiptModal(totalPrice, cashInput), 1000);
+        let redirectUrl = null;
 
-        return true;
-    }
+        form.addEventListener('submit', function (event) {
+            event.preventDefault();
 
-    function showReceiptModal(totalPrice, cashInput) {
-        const change = cashInput - totalPrice;
-        const currentDate = new Date().toLocaleString();
+            const cashInputValue = parseFloat(cashInput.value);
 
-        document.getElementById('receiptReservationNumber').innerText = '@Model.ReservationNumber';
-        document.getElementById('receiptTotalPrice').innerText = totalPrice.toFixed(2);
-        document.getElementById('receiptCashAmount').innerText = cashInput.toFixed(2);
-        document.getElementById('receiptChange').innerText = change.toFixed(2);
-        document.getElementById('receiptDate').innerText = currentDate;
+            if (isNaN(cashInputValue) || cashInputValue < totalPrice) {
+                alert('Cash amount must be equal to or greater than the total price.');
+                return;
+            }
 
-        new bootstrap.Modal(document.getElementById('receiptModal')).show();
-    }
+            const change = cashInputValue - totalPrice;
+            const formData = new FormData(form);
 
-    function printReceipt() {
-        const printContent = document.getElementById('receiptContent').innerHTML;
-        const originalContents = document.body.innerHTML;
+            fetch('/Payment/StorePayment', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        redirectUrl = data.redirectUrl; // Redirect URL from backend
 
-        document.body.innerHTML = '<div style="font-family: Courier New, monospace;">' + printContent + '</div>';
-        window.print();
-        document.body.innerHTML = originalContents;
-        window.location.reload();
-    }
+                        const currentDate = new Date().toLocaleString();
+
+                        document.getElementById('receiptReservationNumber').innerText = '@Model.ReservationNumber';
+                        document.getElementById('receiptTotalPrice').innerText = totalPrice.toFixed(2);
+                        document.getElementById('receiptCashAmount').innerText = cashInputValue.toFixed(2);
+                        document.getElementById('receiptChange').innerText = change.toFixed(2);
+                        document.getElementById('receiptDate').innerText = currentDate;
+
+                        const receiptModal = new bootstrap.Modal(document.getElementById('receiptModal'));
+                        receiptModal.show();
+                    } else {
+                        alert(data.message || 'Payment failed.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while processing the payment.');
+                });
+        });
+
+        // Redirect when modal is closed
+        document.getElementById('receiptModal').addEventListener('hidden.bs.modal', function () {
+            if (redirectUrl) {
+                window.location.href = redirectUrl;
+            }
+        });
+
+        // Print receipt and redirect after printing
+        window.printReceipt = function () {
+            const printContent = document.getElementById('receiptContent').innerHTML;
+            const originalContents = document.body.innerHTML;
+
+            document.body.innerHTML = '<div style="font-family: Courier New, monospace;">' + printContent + '</div>';
+            window.print();
+            document.body.innerHTML = originalContents;
+
+            if (redirectUrl) {
+                window.location.href = redirectUrl;
+            } else {
+                window.location.reload(); // Fallback if no URL
+            }
+        };
+    });
 </script>
 
-<style>
-    #addEditHeader {
-        background: linear-gradient(to right, #0062cc, #0096ff);
-        color: white;
-    }
-</style>

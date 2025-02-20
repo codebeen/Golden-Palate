@@ -63,12 +63,15 @@ namespace RRS.Controllers
                 return RedirectToAction("Index");
             }
 
-            return PartialView("PaymentMethodModal", reservationToPay);
+            return View("PaymentMethodModal", reservationToPay);
         }
 
+
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult ShowCashModal(int id)
         {
+
             var reservationToPay = context.ReservationDetails.FromSqlRaw("GetReservationDetailsById @p0", id).AsEnumerable().FirstOrDefault();
 
             if (reservationToPay == null)
@@ -77,6 +80,16 @@ namespace RRS.Controllers
 
                 return RedirectToAction("Index");
             }
+
+            //Console.WriteLine(reservationToPay.TotalPrice);
+            //Console.WriteLine(reservationToPay.ReservationNumber);
+            //Console.WriteLine(reservationToPay.Id);
+            //Console.WriteLine(reservationToPay.ReservationNumber);
+
+            //ViewData["cashAmount"] = reservationToPay.TotalPrice;
+            //ViewData["cashDescription"] = $"Payment for {reservationToPay.ReservationNumber}";
+            //ViewData["cashReservationId"] = reservationToPay.Id;
+            //ViewData["cashReservationNumber"] = reservationToPay.ReservationNumber;
 
             return PartialView("CashModal", reservationToPay);
         }
