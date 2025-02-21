@@ -1,0 +1,102 @@
+﻿@model IEnumerable<RRS.Models.ViewModels.AuditLogsViewModel>
+
+@{
+    ViewData["Title"] = "Audit Logs";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    int counter = 1;
+}
+
+<div class="text-left mb-2 d-flex align-items-center justify-content-between">
+    <div>
+        <h1 class="fs-4">Audit Logs</h1>
+        <p class="text-secondary">Records of activities within the system.</p>
+    </div>
+    <a type="button" class="btn btn-warning" asp-action="Export" asp-controller="AuditLog">
+        <i class="fa-solid fa-download"></i>  Export CSV
+    </a>
+</div>
+
+<!-- DataTales Example -->
+<div class="card border-0 shadow-sm mb-5">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover text-center" id="auditLogsTable">
+                <thead>
+                    <tr>
+                        <th class="text-center">No.</th>
+                        <th class="text-center">Timestamp</th>
+                        <th class="text-center">User Full Name</th>
+                        <th class="text-center">Email</th>
+                        <th class="text-center">Role</th>
+                        <th class="text-center">Activity</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var log in Model)
+                    {
+                        <tr>
+                            <td class="text-center">@counter</td>
+                            <td class="text-center">@log.CreatedDate.ToString("MMMM dd, yyyy")</td>
+                            <td class="text-center">
+                                @((log.FirstName == "System" && log.LastName == "System") ? "System" : $"{log.FirstName} {log.LastName}")
+                            </td>
+                            <td class="text-center">
+                                @(string.IsNullOrEmpty(log.Email) ? "System" : log.Email)
+                            </td>
+                            <td class="text-center">
+                                @(string.IsNullOrEmpty(log.UserRole) ? "System" : log.UserRole)
+                            </td>
+                            <td class="text-center">@log.Activity</td>
+                            @if (log.Status.ToLower() == "success")
+                            {
+                                <td class="text-center text-success">@log.Status</td>
+                            }
+                            else if (log.Status.ToLower() == "failed")
+                            {
+                                <td class="text-center text-danger">@log.Status</td>
+                            }
+                            <td class="align-middle text-center">
+                                <button onclick="showLogDetailsModal('@log.Id')" type="button" class="btn btn-info btn-sm rounded px-3 py-1"
+                                        data-bs-toggle="modal" data-bs-target="#viewLogDetails-@log.Id"
+                                        data-url="@Url.Action($"ViewAuditLogDetails/{log.Id}")">
+                                    View
+                                </button>
+                                @await Html.PartialAsync("AuditLogDetails", log)
+                            </td>
+                        </tr>
+
+                        counter++;
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        new DataTable('#auditLogsTable');
+    });
+
+    function showLogDetailsModal(logId) {
+        // Clear any existing modal backdrops
+        removeModalBackdrops();
+
+        const modalElement = document.getElementById(`viewLogDetails-${logId}`);
+
+        if (modalElement) {
+            const logDetailsModal = new bootstrap.Modal(modalElement);
+            logDetailsModal.show();
+        } else {
+            console.error(`Modal with ID viewLogDetails-${logId} not found`);
+        }
+    }
+
+    function removeModalBackdrops() {
+        const backdrops = document.querySelectorAll('.modal-backdrop');
+        backdrops.forEach(backdrop => backdrop.remove());
+    }
+</script>

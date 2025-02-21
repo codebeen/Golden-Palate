@@ -9,18 +9,24 @@ using BCrypt.Net;
 using RRS.Services;
 using System.Data;
 using System.Text;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Logging;
+using System.Security.Claims;
 
 namespace RRS.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class UserController : Controller
     {
         private readonly ApplicationDbContext context;
         private readonly EmailService _emailService;
+        private readonly ILogger<UserController> logger;
 
-        public UserController(ApplicationDbContext context, EmailService emailService)
+        public UserController(ApplicationDbContext context, EmailService emailService, ILogger<UserController> logger)
         {
             this.context = context;
             _emailService = emailService;
+            this.logger = logger;
         }
 
 
@@ -40,6 +46,14 @@ namespace RRS.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(User user)
         {
+            // Retrieve UserId securely from authentication claims
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+            {
+                logger.LogWarning("Invalid or missing UserId in claims.");
+                return RedirectToAction("Login");
+            }
+
             try
             {
                 // Generate random password
@@ -78,16 +92,43 @@ namespace RRS.Controllers
 
                     await _emailService.SendEmailAsync(user.Email, subject, body);
 
+                    // log
+                    var logParams = new SqlParameter[]
+                    {
+                        new SqlParameter("@Activity", SqlDbType.VarChar) { Value = "Create user" },
+                        new SqlParameter("@UserId", SqlDbType.Int) { Value = userId },
+                        new SqlParameter("@Status", SqlDbType.VarChar) { Value = "Success" }
+                    };
+                    context.Database.ExecuteSqlRaw("EXEC InsertAuditLog @Activity, @UserId, @Status", logParams);
+
                     TempData["SuccessMessage"] = "User added successfully. Their login credentials have been sent to the respective email address.";
                     return RedirectToAction("Index");
                 }
             }
             catch (Exception ex)
             {
+                // log
+                var error1logParams = new SqlParameter[]
+                {
+                    new SqlParameter("@Activity", SqlDbType.VarChar) { Value = "Failed to create user" },
+                    new SqlParameter("@UserId", SqlDbType.Int) { Value = userId },
+                    new SqlParameter("@Status", SqlDbType.VarChar) { Value = "Failed" }
+                };
+                context.Database.ExecuteSqlRaw("EXEC InsertAuditLog @Activity, @UserId, @Status", error1logParams);
+
                 Console.WriteLine($"Error adding user: {ex.Message}");
                 TempData["ErrorMessage"] = "Failed to add the user. Please check the input and try again.";
                 return RedirectToAction("Index");
             }
+
+            // log
+            var errorlogParams = new SqlParameter[]
+            {
+                new SqlParameter("@Activity", SqlDbType.VarChar) { Value = "Failed to create user" },
+                new SqlParameter("@UserId", SqlDbType.Int) { Value = userId },
+                new SqlParameter("@Status", SqlDbType.VarChar) { Value = "Failed" }
+            };
+            context.Database.ExecuteSqlRaw("EXEC InsertAuditLog @Activity, @UserId, @Status", errorlogParams);
 
             TempData["ErrorMessage"] = "Failed to add the user. Please check the input and try again.";
             return RedirectToAction("Index");
@@ -123,6 +164,14 @@ namespace RRS.Controllers
         [HttpPost]
         public IActionResult Edit(User user)
         {
+            // Retrieve UserId securely from authentication claims
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+            {
+                logger.LogWarning("Invalid or missing UserId in claims.");
+                return RedirectToAction("Login");
+            }
+
             var existingUser = context.Users.FromSqlRaw($"GetUserById @p0", user.Id).AsEnumerable().FirstOrDefault();
 
             if (existingUser != null)
@@ -146,10 +195,28 @@ namespace RRS.Controllers
 
                 if (updateUserResult > 0)
                 {
+                    // log
+                    var logParams = new SqlParameter[]
+                    {
+                        new SqlParameter("@Activity", SqlDbType.VarChar) { Value = "Update user details" },
+                        new SqlParameter("@UserId", SqlDbType.Int) { Value = userId },
+                        new SqlParameter("@Status", SqlDbType.VarChar) { Value = "Success" }
+                    };
+                    context.Database.ExecuteSqlRaw("EXEC InsertAuditLog @Activity, @UserId, @Status", logParams);
+
                     TempData["SuccessMessage"] = "User details updated successfully";
                     return RedirectToAction("Index");
                 }
-                
+
+                // log
+                var errorlogParams = new SqlParameter[]
+                {
+                    new SqlParameter("@Activity", SqlDbType.VarChar) { Value = "Failed to update user details" },
+                    new SqlParameter("@UserId", SqlDbType.Int) { Value = userId },
+                    new SqlParameter("@Status", SqlDbType.VarChar) { Value = "Failed" }
+                };
+                context.Database.ExecuteSqlRaw("EXEC InsertAuditLog @Activity, @UserId, @Status", errorlogParams);
+
                 TempData["ErrorMessage"] = "Failed to update user details";
                 return RedirectToAction("Index");
             }
@@ -179,6 +246,14 @@ namespace RRS.Controllers
         [HttpPost]
         public IActionResult Delete(User user)
         {
+            // Retrieve UserId securely from authentication claims
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+            {
+                logger.LogWarning("Invalid or missing UserId in claims.");
+                return RedirectToAction("Login");
+            }
+
             try
             {
                 var existingUser = context.Users.FromSqlRaw("GetUserById @p0", user.Id).AsEnumerable().FirstOrDefault();
@@ -201,13 +276,30 @@ namespace RRS.Controllers
 
                     if (deleteUserResult > 0)
                     {
+                        // log
+                        var logParams = new SqlParameter[]
+                        {
+                            new SqlParameter("@Activity", SqlDbType.VarChar) { Value = "Delete a user" },
+                            new SqlParameter("@UserId", SqlDbType.Int) { Value = userId },
+                            new SqlParameter("@Status", SqlDbType.VarChar) { Value = "Success" }
+                        };
+                        context.Database.ExecuteSqlRaw("EXEC InsertAuditLog @Activity, @UserId, @Status", logParams);
+
                         TempData["SuccessMessage"] = "User successfully deleted.";
                         return RedirectToAction("Index");
                     }
 
+                    // log
+                    var errorlogParams = new SqlParameter[]
+                    {
+                        new SqlParameter("@Activity", SqlDbType.VarChar) { Value = "Failed to delete user" },
+                        new SqlParameter("@UserId", SqlDbType.Int) { Value = userId },
+                        new SqlParameter("@Status", SqlDbType.VarChar) { Value = "Failed" }
+                    };
+                    context.Database.ExecuteSqlRaw("EXEC InsertAuditLog @Activity, @UserId, @Status", errorlogParams);
+
                     TempData["ErrorMessage"] = "Failed to delete this user.";
                     return RedirectToAction("Index");
-
                 }
 
                 TempData["ErrorMessage"] = "User not found";
@@ -215,6 +307,15 @@ namespace RRS.Controllers
             }
             catch (Exception ex)
             {
+                // log
+                var errorlogParams = new SqlParameter[]
+                {
+                    new SqlParameter("@Activity", SqlDbType.VarChar) { Value = "Failed to delete user" },
+                    new SqlParameter("@UserId", SqlDbType.Int) { Value = userId },
+                    new SqlParameter("@Status", SqlDbType.VarChar) { Value = "Failed" }
+                };
+                context.Database.ExecuteSqlRaw("EXEC InsertAuditLog @Activity, @UserId, @Status", errorlogParams);
+
                 Console.WriteLine(ex.ToString());
                 TempData["ErrorMessage"] = "Failed to delete this user.";
                 return RedirectToAction("Index");
@@ -239,6 +340,22 @@ namespace RRS.Controllers
 
             var byteArray = Encoding.UTF8.GetBytes(csvContent.ToString());
             var stream = new MemoryStream(byteArray);
+
+            // Retrieve UserId securely from authentication claims
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+            {
+                logger.LogWarning("Invalid or missing UserId in claims.");
+                return RedirectToAction("Login");
+            }
+
+            var logParams = new SqlParameter[]
+            {
+                    new SqlParameter("@Activity", SqlDbType.VarChar) { Value = "Export all user details into csv file" },
+                    new SqlParameter("@UserId", SqlDbType.Int) { Value = userId },
+                    new SqlParameter("@Status", SqlDbType.VarChar) { Value = "Success" }
+            };
+            context.Database.ExecuteSqlRaw("EXEC InsertAuditLog @Activity, @UserId, @Status", logParams);
 
             return File(stream, "text/csv", csvFileName);
         }

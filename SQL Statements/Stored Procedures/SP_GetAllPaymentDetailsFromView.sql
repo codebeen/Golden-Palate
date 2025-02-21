@@ -11,7 +11,7 @@ BEGIN
 		CustomerFullName,
 		CreatedAt
     FROM 
-		PaymentDetailsView
+		PaymentDetails
 	ORDER BY
 		CreatedAt DESC
 END;

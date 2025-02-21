@@ -206,6 +206,43 @@
 </div>
 
 
+@if (TempData["SuccessMessage"] != null)
+{
+    <script>
+        Swal.fire({
+            title: 'Success!',
+            text: '@TempData["SuccessMessage"]',
+            icon: 'success',
+            confirmButtonText: 'OK'
+        });
+    </script>
+}
+
+@if (TempData["InformationMessage"] != null)
+{
+    <script>
+        Swal.fire({
+            title: 'Information!',
+            text: '@TempData["InformationMessage"]',
+            icon: 'info',
+            confirmButtonText: 'OK'
+        });
+    </script>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <script>
+        Swal.fire({
+            title: 'Error!',
+            text: '@TempData["ErrorMessage"]',
+            icon: 'error',
+            confirmButtonText: 'OK'
+        });
+    </script>
+}
+
+
 <style>
     .icon-big {
         border-radius: 50%;

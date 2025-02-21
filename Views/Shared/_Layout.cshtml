@@ -73,17 +73,23 @@
                         <i class='bx bx-user nav_icon'></i>
                         <span class="nav_name">User Management</span>
                     </a>
-                    <a class="nav_link" asp-area="" asp-action="" asp-controller="">
+                    <a class="nav_link" asp-area="" asp-action="Index" asp-controller="AuditLog">
                         <i class='bx bx-history nav_icon'></i>
                         <span class="nav_name">Audit Logs</span>
                     </a>
                 </div>
             </div>
 
-            <a class="nav_link" asp-area="" asp-action="LogoutUser" asp-controller="Account">
-                <i class='bx bx-log-out nav_icon'></i>
-                <span class="nav_name">SignOut</span>
-            </a>
+            <div>
+                <a class="nav_link mb-2" asp-area="" asp-action="ChangePassword" asp-controller="Account">
+                    <i class='bx bx-key nav_icon'></i>
+                    <span class="nav_name">Change Password</span>
+                </a>
+                <a class="nav_link" asp-area="" asp-action="LogoutUser" asp-controller="Account">
+                    <i class='bx bx-log-out nav_icon'></i>
+                    <span class="nav_name">SignOut</span>
+                </a>
+            </div>
         </nav>
     </div>
 

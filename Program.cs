@@ -28,6 +28,15 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true; // Make the session cookie essential
 });
 
+builder.Services.AddAuthentication("Cookies")  // Use "Cookies" as the default scheme
+    .AddCookie("Cookies", options =>
+    {
+        options.LoginPath = "/Account/Login";
+        options.AccessDeniedPath = "/Account/AccessDenied";
+    });
+
+
+builder.Services.AddAuthorization(); // Enable authorization policies
 
 var app = builder.Build();
 

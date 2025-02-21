@@ -1,10 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using RestSharp;
 using RRS.Data;
 using RRS.Models;
+using System.Data;
 using System.Globalization;
+using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 
@@ -25,9 +28,10 @@ namespace RRS.Controllers
 
         public string GetAuthenticatedUserEmail()
         {
-            return HttpContext.Session.GetString("UserEmail");
+            return User.Identity.IsAuthenticated ? User.FindFirst(ClaimTypes.Name)?.Value : null;
         }
 
+        [Authorize(Roles = "Admin")]
         public IActionResult Index()
         {
             var payments = context.PaymentDetails.FromSqlRaw("EXEC GetAllPaymentDetailsFromView").ToList();
@@ -35,7 +39,7 @@ namespace RRS.Controllers
             return View("Index", payments);
         }
 
-
+        [Authorize(Roles = "Admin")]
         public IActionResult ViewPaymentDetails(int id)
         {
             var getSpecificPayment = context.PaymentDetails.FromSqlRaw("GetPaymentDetailsById @p0", id).AsEnumerable().FirstOrDefault();
@@ -50,6 +54,8 @@ namespace RRS.Controllers
             return PartialView("PaymentDetails", getSpecificPayment);
         }
 
+
+        [Authorize(Roles = "Admin")]
         public ActionResult Export()
         {
             var payments = context.PaymentDetails.FromSqlRaw("EXEC GetAllPaymentDetailsFromView").ToList();
@@ -68,18 +74,34 @@ namespace RRS.Controllers
             var byteArray = Encoding.UTF8.GetBytes(csvContent.ToString());
             var stream = new MemoryStream(byteArray);
 
+            // Retrieve UserId securely from authentication claims
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+            {
+                logger.LogWarning("Invalid or missing UserId in claims.");
+                return RedirectToAction("Login");
+            }
+
+            var logParams = new SqlParameter[]
+            {
+                new SqlParameter("@Activity", SqlDbType.VarChar) { Value = "Export all payments into csv file" },
+                new SqlParameter("@UserId", SqlDbType.Int) { Value = userId },
+                new SqlParameter("@Status", SqlDbType.VarChar) { Value = "Success" }
+            };
+            context.Database.ExecuteSqlRaw("EXEC InsertAuditLog @Activity, @UserId, @Status", logParams);
+
             return File(stream, "text/csv", csvFileName);
         }
 
 
+        [Authorize(Roles = "Admin, Staff")]
         [HttpPost]
         public IActionResult StorePayment(decimal amount, string? description, int reservationId, string modeOfPayment)
         {
 
-            var authenticatedEmail = GetAuthenticatedUserEmail();
-            var authenticatedUser = context.Users.FromSqlRaw("EXEC GetUserByEmail @p0", authenticatedEmail).AsEnumerable().FirstOrDefault();
+            var authenticatedUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            if (authenticatedUser == null)
+            if (string.IsNullOrEmpty(authenticatedUserId) || !int.TryParse(authenticatedUserId, out int userId))
             {
                 return Json(new { success = false, message = "Unauthorized access." });
             }
@@ -91,7 +113,7 @@ namespace RRS.Controllers
                     new SqlParameter("@Amount", System.Data.SqlDbType.Decimal) { Value = amount },
                     new SqlParameter("@Description", System.Data.SqlDbType.VarChar) { Value = (object?)description ?? DBNull.Value },
                     new SqlParameter("@ReservationId", System.Data.SqlDbType.Int) { Value = reservationId },
-                    new SqlParameter("@UserId", System.Data.SqlDbType.Int) { Value = authenticatedUser.Id },
+                    new SqlParameter("@UserId", System.Data.SqlDbType.Int) { Value = userId },
                     new SqlParameter("@ModeOfPayment", System.Data.SqlDbType.VarChar) { Value = modeOfPayment }
                 };
 
@@ -109,11 +131,27 @@ namespace RRS.Controllers
                     context.Database.ExecuteSqlRaw("EXEC UpdateReservationStatus @Id, @Status", statusParameters);
                     HttpContext.Session.Remove("PayMongoCheckoutId");
 
+                    var logParams = new SqlParameter[]
+                    {
+                        new SqlParameter("@Activity", SqlDbType.VarChar) { Value = "Created payment" },
+                        new SqlParameter("@UserId", SqlDbType.Int) { Value = userId },
+                        new SqlParameter("@Status", SqlDbType.VarChar) { Value = "Success" }
+                    };
+                    context.Database.ExecuteSqlRaw("EXEC InsertAuditLog @Activity, @UserId, @Status", logParams);
+
                     TempData["SuccessMessage"] = "Successfully completed the reservation!";
                     return Json(new { success = true, reservationId, redirectUrl = Url.Action("Index", "StaffReservation") });
                 }
                 else
                 {
+                    var logParams = new SqlParameter[]
+                    {
+                        new SqlParameter("@Activity", SqlDbType.VarChar) { Value = "Failed to store payment" },
+                        new SqlParameter("@UserId", SqlDbType.Int) { Value = userId },
+                        new SqlParameter("@Status", SqlDbType.VarChar) { Value = "Failed" }
+                    };
+                    context.Database.ExecuteSqlRaw("EXEC InsertAuditLog @Activity, @UserId, @Status", logParams);
+
                     return Json(new { success = false, message = "Failed to process the payment." });
                 }
             }
@@ -124,9 +162,7 @@ namespace RRS.Controllers
             }
         }
 
-
-
-
+        [Authorize(Roles = "Admin, Staff")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ProcessCashlessPayment(int id)
@@ -214,10 +250,18 @@ namespace RRS.Controllers
             return Redirect(checkoutUrl);
         }
 
-
+        [Authorize(Roles = "Admin, Staff")]
         [HttpGet]
         public async Task<IActionResult> RetrieveCheckoutPaymentMethod(decimal amount, string description, int reservationId)
         {
+            // Retrieve UserId securely from authentication claims
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+            {
+                logger.LogWarning("Invalid or missing UserId in claims.");
+                return RedirectToAction("Login");
+            }
+
             var secretKey = configuration["PayMongo:SecretKey"];
             var checkoutId = HttpContext.Session.GetString("PayMongoCheckoutId");
 
@@ -261,6 +305,14 @@ namespace RRS.Controllers
                         ViewData["ReservationId"] = reservationId;
                         ViewData["ModeOfPayment"] = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(modeOfPayment.ToLower());
 
+                        var logParams = new SqlParameter[]
+                        {
+                            new SqlParameter("@Activity", SqlDbType.VarChar) { Value = "Process cashless payment" },
+                            new SqlParameter("@UserId", SqlDbType.Int) { Value = userId },
+                            new SqlParameter("@Status", SqlDbType.VarChar) { Value = "Success" }
+                        };
+                        context.Database.ExecuteSqlRaw("EXEC InsertAuditLog @Activity, @UserId, @Status", logParams);
+
                         return View("RedirectToStorePayment");
                     }
                     else
@@ -271,12 +323,28 @@ namespace RRS.Controllers
                 }
                 else
                 {
+                    var logParams = new SqlParameter[]
+                    {
+                        new SqlParameter("@Activity", SqlDbType.VarChar) { Value = "Failed to process cashless payment" },
+                        new SqlParameter("@UserId", SqlDbType.Int) { Value = userId },
+                        new SqlParameter("@Status", SqlDbType.VarChar) { Value = "Failed" }
+                    };
+                    context.Database.ExecuteSqlRaw("EXEC InsertAuditLog @Activity, @UserId, @Status", logParams);
+
                     logger.LogWarning("No payments found for this checkout session.");
                     return BadRequest("No payments found for this checkout session.");
                 }
             }
             catch (Exception ex)
             {
+                var logParams = new SqlParameter[]
+                {
+                    new SqlParameter("@Activity", SqlDbType.VarChar) { Value = "Failed to process cashless payment" },
+                    new SqlParameter("@UserId", SqlDbType.Int) { Value = userId },
+                    new SqlParameter("@Status", SqlDbType.VarChar) { Value = "Failed" }
+                };
+                context.Database.ExecuteSqlRaw("EXEC InsertAuditLog @Activity, @UserId, @Status", logParams);
+
                 logger.LogError(ex, "Exception occurred while retrieving payment method.");
                 return StatusCode(500, "An error occurred while processing the payment.");
             }

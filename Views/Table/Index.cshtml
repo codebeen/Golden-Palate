@@ -13,7 +13,7 @@
         <p class="text-secondary">List of all tables in the restaurant.</p>
     </div>
     <div class="gap-3">
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTable">
+        <button onclick="showAddTableModal()" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTable">
             <i class="fa-solid fa-plus"></i>  Add Table
         </button>
         <a type="button" class="btn btn-warning" asp-action="Export" asp-controller="Table">
@@ -63,7 +63,7 @@
                                 <div class="d-flex justify-content-center gap-3 flex-wrap w-100">
                                     <!-- Edit Button -->
                                     <div class="d-flex flex-column flex-sm-row ms-1">
-                                        <button type="button" class="btn btn-outline-warning btn-sm rounded-pill px-2 py-1" data-bs-toggle="modal" data-bs-target="#editTable-@table.Id" data-url="@Url.Action($"Edit/{table.Id}")">
+                                        <button onclick="showEditTableModal('@table.Id')" type="button" class="btn btn-outline-warning btn-sm rounded-pill px-2 py-1" data-bs-toggle="modal" data-bs-target="#editTable-@table.Id" data-url="@Url.Action($"Edit/{table.Id}")">
                                             <i class="fa-solid fa-pencil-alt"></i> <!-- Edit icon -->
                                         </button>
                                         @await Html.PartialAsync("EditTableModal", table)
@@ -71,7 +71,7 @@
 
                                     <!-- Delete Button -->
                                     <div class="d-flex flex-column flex-sm-row mt-2 mt-sm-0 ms-1">
-                                        <button type="button" class="btn btn-outline-danger btn-sm rounded-pill px-2 py-1" data-bs-toggle="modal" data-bs-target="#deleteTable-@table.Id" data-url="@Url.Action($"Delete/{table.Id}")">
+                                        <button onclick="showDeleteTableModal('@table.Id')" type="button" class="btn btn-outline-danger btn-sm rounded-pill px-2 py-1" data-bs-toggle="modal" data-bs-target="#deleteTable-@table.Id" data-url="@Url.Action($"Delete/{table.Id}")">
                                             <i class="fa-solid fa-trash-alt"></i> <!-- Delete icon -->
                                         </button>
                                         @await Html.PartialAsync("DeleteTableModal", table)
@@ -127,46 +127,41 @@
 <!-- Bootstrap JS Bundle -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
+@if (TempData["SuccessMessage"] != null)
+{
+    <script>
+        Swal.fire({
+            title: 'Success!',
+            text: '@TempData["SuccessMessage"]',
+            icon: 'success',
+            confirmButtonText: 'OK'
+        });
+    </script>
+}
 
-<script>
+@if (TempData["InformationMessage"] != null)
+{
+    <script>
+        Swal.fire({
+            title: 'Information!',
+            text: '@TempData["InformationMessage"]',
+            icon: 'info',
+            confirmButtonText: 'OK'
+        });
+    </script>
+}
 
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <text>
-                Swal.fire({
-                    title: 'Success!',
-                text: '@TempData["SuccessMessage"]',
-                icon: 'success',
-                confirmButtonText: 'OK'
-                            });
-        </text>
-    }
-
-    @if (TempData["InformationMessage"] != null)
-    {
-        <text>
-                Swal.fire({
-                    title: 'Information!',
-                text: '@TempData["InformationMessage"]',
-                icon: 'info',
-                confirmButtonText: 'OK'
-                            });
-        </text>
-    }
-
-    @if (TempData["ErrorMessage"] != null)
-    {
-        <text>
-                Swal.fire({
-                    title: 'Error!',
-                text: '@TempData["ErrorMessage"]',
-                icon: 'error',
-                confirmButtonText: 'OK'
-                            });
-        </text>
-    }
-</script>
-
+@if (TempData["ErrorMessage"] != null)
+{
+    <script>
+        Swal.fire({
+            title: 'Error!',
+            text: '@TempData["ErrorMessage"]',
+            icon: 'error',
+            confirmButtonText: 'OK'
+        });
+    </script>
+}
 
 @section Scripts {
     <script>
@@ -174,28 +169,51 @@
             new DataTable('#tableTable');
         });
 
+        function showAddTableModal() {
+            // Clear any existing modal backdrops
+            removeModalBackdrops();
 
+            const modalElement = document.getElementById(`addTable`);
 
-        // document.addEventListener("DOMContentLoaded", function () {
-        //     const toast = new bootstrap.Toast(document.getElementById("successNotification"));
-        //     toast.show();
-        //     const deleteButtons = document.querySelectorAll(".deleteTableButton");
-        //     const tableNumberToDelete = document.getElementById("tableNumberToDelete");
-        //     const confirmDeleteButton = document.getElementById("confirmDeleteButton");
+            if (modalElement) {
+                const addTableModal = new bootstrap.Modal(modalElement);
+                addTableModal.show();
+            } else {
+                console.error(`Modal with ID addTable not found`);
+            }
+        }
 
-        //     Attach click event to delete buttons
-        //     deleteButtons.forEach(button => {
-        //         button.addEventListener("click", function () {
-        //             const tableId = this.getAttribute("data-table-id");
-        //             const tableNumber = this.getAttribute("data-table-number");
+        function showEditTableModal(reservationId) {
+            // Clear any existing modal backdrops
+            removeModalBackdrops();
 
-        //             Update modal text
-        //             tableNumberToDelete.textContent = tableNumber;
+            const modalElement = document.getElementById(`editTable-${reservationId}`);
 
-        //             Update confirmation link
-        //             confirmDeleteButton.href = `/Table/DeleteTable/${tableId}`;
-        //         });
-        //     });
-        // });
+            if (modalElement) {
+                const editTableModal = new bootstrap.Modal(modalElement);
+                editTableModal.show();
+            } else {
+                console.error(`Modal with ID editTable-${reservationId} not found`);
+            }
+        }
+
+        function showDeleteTableModal(reservationId) {
+            // Clear any existing modal backdrops
+            removeModalBackdrops();
+
+            const modalElement = document.getElementById(`deleteTable-${reservationId}`);
+
+            if (modalElement) {
+                const deleteTableModal = new bootstrap.Modal(modalElement);
+                deleteTableModal.show();
+            } else {
+                console.error(`Modal with ID deleteTable-${reservationId} not found`);
+            }
+        }
+
+        function removeModalBackdrops() {
+            const backdrops = document.querySelectorAll('.modal-backdrop');
+            backdrops.forEach(backdrop => backdrop.remove());
+        }
     </script>
 }

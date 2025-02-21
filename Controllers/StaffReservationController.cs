@@ -1,20 +1,29 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using RRS.Data;
 using RRS.Models;
 using RRS.Models.ViewModels;
+using System.Data;
+using System.Security.Claims;
 
 namespace RRS.Controllers
 {
+    [Authorize(Roles = "Staff")]
     public class StaffReservationController : Controller
     {
         private readonly ApplicationDbContext context;
+        private readonly ILogger<StaffReservationController> logger;
 
-        public StaffReservationController(ApplicationDbContext context)
+        public StaffReservationController(ApplicationDbContext context, ILogger<StaffReservationController> logger)
         {
             this.context = context;
+            this.logger = logger;
         }
+
+
         public IActionResult Index()
         {
             // Fetch ReservationDetails view model from the stored procedure or database.
@@ -23,6 +32,7 @@ namespace RRS.Controllers
             // Pass the correct model to the view.
             return View("Index", reservationDetails);  // Ensure it's IEnumerable<ReservationDetails>
         }
+
 
         public IActionResult Dashboard()
         {
@@ -37,6 +47,7 @@ namespace RRS.Controllers
 
             return View("Dashboard", dashboardViewModel);
         }
+
 
         public IActionResult ViewReservationDetailsStaff(int id)
         {
@@ -97,6 +108,14 @@ namespace RRS.Controllers
         [HttpPost]
         public IActionResult StartReservation(int reservationId)
         {
+            // Retrieve UserId securely from authentication claims
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+            {
+                logger.LogWarning("Invalid or missing UserId in claims.");
+                return RedirectToAction("Login");
+            }
+
             Console.WriteLine(reservationId);
             var status = "Ongoing";
 
@@ -123,6 +142,14 @@ namespace RRS.Controllers
             // Ensure reservation is for today
             if (reservationDate.Date != DateTime.Today)
             {
+                var errorlogParams = new SqlParameter[]
+                {
+                    new SqlParameter("@Activity", SqlDbType.VarChar) { Value = "Failed to start reservation" },
+                    new SqlParameter("@UserId", SqlDbType.Int) { Value = userId },
+                    new SqlParameter("@Status", SqlDbType.VarChar) { Value = "Failed" }
+                };
+                context.Database.ExecuteSqlRaw("EXEC InsertAuditLog @Activity, @UserId, @Status", errorlogParams);
+
                 TempData["ErrorMessage"] = "You cannot start the reservation because the reservation date is not today.";
                 return RedirectToAction("Index");
             }
@@ -155,11 +182,27 @@ namespace RRS.Controllers
             // Check if the current time is within the allowed range
             if (currentTime < startTime)
             {
+                var errorlogParams = new SqlParameter[]
+                {
+                new SqlParameter("@Activity", SqlDbType.VarChar) { Value = "Failed to start reservation" },
+                new SqlParameter("@UserId", SqlDbType.Int) { Value = userId },
+                new SqlParameter("@Status", SqlDbType.VarChar) { Value = "Failed" }
+                };
+                context.Database.ExecuteSqlRaw("EXEC InsertAuditLog @Activity, @UserId, @Status", errorlogParams);
+
                 TempData["ErrorMessage"] = "Too early to start the reservation.";
                 return RedirectToAction("Index");
             }
             else if (currentTime > endTime)
             {
+                var errorlogParams = new SqlParameter[]
+                {
+                new SqlParameter("@Activity", SqlDbType.VarChar) { Value = "Failed to start reservation" },
+                new SqlParameter("@UserId", SqlDbType.Int) { Value = userId },
+                new SqlParameter("@Status", SqlDbType.VarChar) { Value = "Failed" }
+                };
+                context.Database.ExecuteSqlRaw("EXEC InsertAuditLog @Activity, @UserId, @Status", errorlogParams);
+
                 TempData["ErrorMessage"] = "Too late to start the reservation.";
                 return RedirectToAction("Index");
             }
@@ -167,6 +210,15 @@ namespace RRS.Controllers
             // If valid, update the reservation status
             this.UpdateReservationStatus(reservationId, status);
             TempData["SuccessMessage"] = "Successfully started the reservation.";
+
+            var logParams = new SqlParameter[]
+            {
+                new SqlParameter("@Activity", SqlDbType.VarChar) { Value = "Start a reservation" },
+                new SqlParameter("@UserId", SqlDbType.Int) { Value = userId },
+                new SqlParameter("@Status", SqlDbType.VarChar) { Value = "Success" }
+            };
+            context.Database.ExecuteSqlRaw("EXEC InsertAuditLog @Activity, @UserId, @Status", logParams);
+
             return RedirectToAction("Index");
         }
 
@@ -277,13 +329,38 @@ namespace RRS.Controllers
 
         public IActionResult CancelReservation(int reservationId)
         {
+            // Retrieve UserId securely from authentication claims
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+            {
+                logger.LogWarning("Invalid or missing UserId in claims.");
+                return RedirectToAction("Login");
+            }
+
             var cancelReservationResult = context.Database.ExecuteSqlRaw($"Exec CancelReservationById @p0", reservationId);
 
             if (cancelReservationResult == 1)
             {
+
+                var logParams = new SqlParameter[]
+                {
+                    new SqlParameter("@Activity", SqlDbType.VarChar) { Value = "Cancelled a reservation" },
+                    new SqlParameter("@UserId", SqlDbType.Int) { Value = userId },
+                    new SqlParameter("@Status", SqlDbType.VarChar) { Value = "Success" }
+                };
+                context.Database.ExecuteSqlRaw("EXEC InsertAuditLog @Activity, @UserId, @Status", logParams);
+
                 TempData["SuccessMessage"] = "Reservation successfully cancelled.";
                 return RedirectToAction("Index");
             }
+
+            var errorlogParams = new SqlParameter[]
+            {
+                new SqlParameter("@Activity", SqlDbType.VarChar) { Value = "Failed to cancel a reservation" },
+                new SqlParameter("@UserId", SqlDbType.Int) { Value = userId },
+                new SqlParameter("@Status", SqlDbType.VarChar) { Value = "Failed" }
+            };
+            context.Database.ExecuteSqlRaw("EXEC InsertAuditLog @Activity, @UserId, @Status", errorlogParams);
 
             TempData["ErrorMessage"] = "Unable to cancel reservation.";
             return RedirectToAction("Index");

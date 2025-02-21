@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.DataProtection;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -12,17 +13,20 @@ using System.Security.Cryptography;
 
 namespace RRS.Controllers
 {
+    [AllowAnonymous]
     public class CustomerReservationController : Controller
     {
         private readonly ApplicationDbContext context;
         private readonly EmailService _emailService;
         private readonly IDataProtectionProvider _dataProtectionProvider;
+        private readonly ILogger<CustomerReservationController> logger;
 
-        public CustomerReservationController(ApplicationDbContext context, EmailService emailService, IDataProtectionProvider dataProtectionProvider)
+        public CustomerReservationController(ApplicationDbContext context, EmailService emailService, IDataProtectionProvider dataProtectionProvider, ILogger<CustomerReservationController> logger)
         {
             this.context = context;
             _emailService = emailService;
             _dataProtectionProvider = dataProtectionProvider;
+            this.logger = logger;
         }
 
         public IActionResult Home()
@@ -391,21 +395,44 @@ namespace RRS.Controllers
 
                     await _emailService.SendEmailAsync(reservation.Customer.Email, subject, body);
 
+                    var logParams = new SqlParameter[]
+                    {
+                        new SqlParameter("@Activity", SqlDbType.VarChar) { Value = "Customer created reservation" },
+                        new SqlParameter("@UserId", SqlDbType.Int) { Value = DBNull.Value },
+                        new SqlParameter("@Status", SqlDbType.VarChar) { Value = "Success" }
+                    };
+                    await context.Database.ExecuteSqlRawAsync("EXEC InsertAuditLog @Activity, @UserId, @Status", logParams);
+
                     TempData["SuccessMessage"] = "Reservation created successfully. A confirmation email has been sent.";
                     return RedirectToAction("DisplayBuffets");
                 }
+
+                var errorlogParams = new SqlParameter[]
+                {
+                    new SqlParameter("@Activity", SqlDbType.VarChar) { Value = "Customer failed to create reservation" },
+                    new SqlParameter("@UserId", SqlDbType.Int) { Value = DBNull.Value },
+                    new SqlParameter("@Status", SqlDbType.VarChar) { Value = "Failed" }
+                };
+                await context.Database.ExecuteSqlRawAsync("EXEC InsertAuditLog @Activity, @UserId, @Status", errorlogParams);
 
                 TempData["ErrorMessage"] = "Failed to create reservation.";
                 return RedirectToAction("DisplayBuffets");
             }
             catch (Exception ex)
             {
+                var errornewlogParams = new SqlParameter[]
+                {
+                    new SqlParameter("@Activity", SqlDbType.VarChar) { Value = "Customer failed to create reservation" },
+                    new SqlParameter("@UserId", SqlDbType.Int) { Value = DBNull.Value },
+                    new SqlParameter("@Status", SqlDbType.VarChar) { Value = "Failed" }
+                };
+                await context.Database.ExecuteSqlRawAsync("EXEC InsertAuditLog @Activity, @UserId, @Status", errornewlogParams);
+
                 Console.WriteLine(ex.ToString());
                 TempData["ErrorMessage"] = "An error occurred while creating the reservation.";
                 return RedirectToAction("DisplayBuffets");
             }
         }
-
 
 
         private (string mealPeriod, string reservationTime) GetMealPeriodAndTime(string buffetType)
@@ -530,6 +557,14 @@ namespace RRS.Controllers
 
                 if (updateCustomerResult == 0)
                 {
+                    var errorlogParams = new SqlParameter[]
+                    {
+                        new SqlParameter("@Activity", SqlDbType.VarChar) { Value = "Customer failed to update their reservation" },
+                        new SqlParameter("@UserId", SqlDbType.Int) { Value = DBNull.Value },
+                        new SqlParameter("@Status", SqlDbType.VarChar) { Value = "Failed" }
+                    };
+                    context.Database.ExecuteSqlRaw("EXEC InsertAuditLog @Activity, @UserId, @Status", errorlogParams);
+
                     TempData["ErrorMessage"] = "Failed to update customer";
                     return View("EditReservation", reservation);
                 }
@@ -563,6 +598,14 @@ namespace RRS.Controllers
 
                 if (updateCustomerResult == 0)
                 {
+                    var errorlogParams = new SqlParameter[]
+                    {
+                        new SqlParameter("@Activity", SqlDbType.VarChar) { Value = "Customer failed to update their reservation" },
+                        new SqlParameter("@UserId", SqlDbType.Int) { Value = DBNull.Value },
+                        new SqlParameter("@Status", SqlDbType.VarChar) { Value = "Failed" }
+                    };
+                    context.Database.ExecuteSqlRaw("EXEC InsertAuditLog @Activity, @UserId, @Status", errorlogParams);
+
                     TempData["ErrorMessage"] = "Failed to update reservation details";
                     return View("EditReservation", reservation);
                 }
@@ -601,12 +644,28 @@ namespace RRS.Controllers
 
                 _emailService.SendEmailAsync(reservation.ReservationDetails.Email, subject, body);
 
+                var logParams = new SqlParameter[]
+                {
+                    new SqlParameter("@Activity", SqlDbType.VarChar) { Value = "Customer updated their reservation" },
+                    new SqlParameter("@UserId", SqlDbType.Int) { Value = DBNull.Value },
+                    new SqlParameter("@Status", SqlDbType.VarChar) { Value = "Success" }
+                };
+                context.Database.ExecuteSqlRaw("EXEC InsertAuditLog @Activity, @UserId, @Status", logParams);
+
                 TempData["SuccessMessage"] = "Reservation updated successfully. Your reservation details has been sent to your email.";
                 return RedirectToAction("DisplayBuffets");
 
             }
             catch(Exception ex)
             {
+                var errorlogParams = new SqlParameter[]
+                {
+                    new SqlParameter("@Activity", SqlDbType.VarChar) { Value = "Customer failed to update their reservation" },
+                    new SqlParameter("@UserId", SqlDbType.Int) { Value = DBNull.Value },
+                    new SqlParameter("@Status", SqlDbType.VarChar) { Value = "Failed" }
+                };
+                context.Database.ExecuteSqlRaw("EXEC InsertAuditLog @Activity, @UserId, @Status", errorlogParams);
+
                 Console.WriteLine(ex.Message);
                 return View("EditReservation", reservation);
             }
@@ -628,7 +687,6 @@ namespace RRS.Controllers
                 return RedirectToAction("DisplayBuffets");
             }
 
-
             TempData["DeleteReservation"] = $"Are you sure you want to delete your reservation with Reservation Number: {reservation.ReservationNumber}? This action cannot be undone.";
             TempData["ReservationNumber"] = reservation.ReservationNumber;
             return RedirectToAction("DisplayBuffets");
@@ -641,9 +699,25 @@ namespace RRS.Controllers
 
             if (cancelReservationResult == 1)
             {
+                var logParams = new SqlParameter[]
+                {
+                    new SqlParameter("@Activity", SqlDbType.VarChar) { Value = "Customer cancel their reservation" },
+                    new SqlParameter("@UserId", SqlDbType.Int) { Value = DBNull.Value },
+                    new SqlParameter("@Status", SqlDbType.VarChar) { Value = "Success" }
+                };
+                context.Database.ExecuteSqlRaw("EXEC InsertAuditLog @Activity, @UserId, @Status", logParams);
+
                 TempData["SuccessMessage"] = "Successfully cancelled your reservation.";
                 return RedirectToAction("DisplayBuffets");
             }
+
+            var errorlogParams = new SqlParameter[]
+            {
+                new SqlParameter("@Activity", SqlDbType.VarChar) { Value = "Customer failed to cancel their reservation" },
+                new SqlParameter("@UserId", SqlDbType.Int) { Value = DBNull.Value },
+                new SqlParameter("@Status", SqlDbType.VarChar) { Value = "Failed" }
+            };
+            context.Database.ExecuteSqlRaw("EXEC InsertAuditLog @Activity, @UserId, @Status", errorlogParams);
 
             TempData["ErrorMessage"] = "Unable to cancel your reservation.";
             return RedirectToAction("DisplayBuffets");

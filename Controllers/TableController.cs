@@ -1,21 +1,28 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using RRS.Data;
 using RRS.Models;
+using System.Data;
+using System.Security.Claims;
 using System.Text;
 
 namespace RRS.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class TableController : Controller
     {
         private readonly ApplicationDbContext context;
+        private readonly ILogger<TableController> logger;
         private readonly IWebHostEnvironment environment;
 
-        public TableController(ApplicationDbContext context, IWebHostEnvironment environment)
+        public TableController(ApplicationDbContext context, IWebHostEnvironment environment, ILogger<TableController> logger)
         {
             this.context = context;
             this.environment = environment;
+            this.logger = logger;
         }
 
 
@@ -56,6 +63,14 @@ namespace RRS.Controllers
         [HttpPost]
         public IActionResult Create(Table table)
         {
+            // Retrieve UserId securely from authentication claims
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+            {
+                logger.LogWarning("Invalid or missing UserId in claims.");
+                return RedirectToAction("Login");
+            }
+
             try
             {
                 if (ModelState.IsValid)
@@ -102,9 +117,25 @@ namespace RRS.Controllers
 
                     if (createTableResult == 1)
                     {
+                        var logParams = new SqlParameter[]
+                        {
+                            new SqlParameter("@Activity", SqlDbType.VarChar) { Value = "Created a table" },
+                            new SqlParameter("@UserId", SqlDbType.Int) { Value = userId },
+                            new SqlParameter("@Status", SqlDbType.VarChar) { Value = "Success" }
+                        };
+                        context.Database.ExecuteSqlRaw("EXEC InsertAuditLog @Activity, @UserId, @Status", logParams);
+
                         TempData["SuccessMessage"] = "Table added successfully.";
                         return RedirectToAction("Index");
                     }
+
+                    var errorlogParams = new SqlParameter[]
+                    {
+                        new SqlParameter("@Activity", SqlDbType.VarChar) { Value = "Failed to create table" },
+                        new SqlParameter("@UserId", SqlDbType.Int) { Value = userId },
+                        new SqlParameter("@Status", SqlDbType.VarChar) { Value = "Failed" }
+                    };
+                    context.Database.ExecuteSqlRaw("EXEC InsertAuditLog @Activity, @UserId, @Status", errorlogParams);
 
                     TempData["ErrorMessage"] = "Failed to add the table.";
                     return RedirectToAction("Index");
@@ -150,6 +181,14 @@ namespace RRS.Controllers
         [HttpPost]
         public IActionResult Edit(Table table)
         {
+            // Retrieve UserId securely from authentication claims
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+            {
+                logger.LogWarning("Invalid or missing UserId in claims.");
+                return RedirectToAction("Login");
+            }
+
             if (ModelState.IsValid)
             {
                 var existingTable = context.Tables.FromSqlRaw("GetTableById @p0", table.Id).AsEnumerable().FirstOrDefault();
@@ -221,9 +260,25 @@ namespace RRS.Controllers
 
                     if (updateTableResult == 1)
                     {
+                        var logParams = new SqlParameter[]
+                        {
+                            new SqlParameter("@Activity", SqlDbType.VarChar) { Value = "Updated a table" },
+                            new SqlParameter("@UserId", SqlDbType.Int) { Value = userId },
+                            new SqlParameter("@Status", SqlDbType.VarChar) { Value = "Success" }
+                        };
+                        context.Database.ExecuteSqlRaw("EXEC InsertAuditLog @Activity, @UserId, @Status", logParams);
+
                         TempData["SuccessMessage"] = "Table details updated successfully.";
                         return RedirectToAction("Index");
                     }
+
+                    var errologParams = new SqlParameter[]
+                    {
+                        new SqlParameter("@Activity", SqlDbType.VarChar) { Value = "Failed to update a table" },
+                        new SqlParameter("@UserId", SqlDbType.Int) { Value = userId },
+                        new SqlParameter("@Status", SqlDbType.VarChar) { Value = "Failed" }
+                    };
+                    context.Database.ExecuteSqlRaw("EXEC InsertAuditLog @Activity, @UserId, @Status", errologParams);
 
                     TempData["ErrorMessage"] = "Failed to update table.";
                     return RedirectToAction("Index");
@@ -267,6 +322,14 @@ namespace RRS.Controllers
         [HttpPost]
         public IActionResult Delete(Table table)
         {
+            // Retrieve UserId securely from authentication claims
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+            {
+                logger.LogWarning("Invalid or missing UserId in claims.");
+                return RedirectToAction("Login");
+            }
+
             try
             {
                 var existingTable = context.Tables.FromSqlRaw("GetTableById @p0", table.Id).AsEnumerable().FirstOrDefault();
@@ -287,6 +350,14 @@ namespace RRS.Controllers
                     // Execute the stored procedure with the parameter array
                     var deleteTableResult = context.Database.ExecuteSqlRaw("EXEC DeleteTable @Id", parameter);
 
+                    var logParams = new SqlParameter[]
+                    {
+                        new SqlParameter("@Activity", SqlDbType.VarChar) { Value = "Deleted a table" },
+                        new SqlParameter("@UserId", SqlDbType.Int) { Value = userId },
+                        new SqlParameter("@Status", SqlDbType.VarChar) { Value = "Success" }
+                    };
+                    context.Database.ExecuteSqlRaw("EXEC InsertAuditLog @Activity, @UserId, @Status", logParams);
+
                     TempData["SuccessMessage"] = "Table successfully deleted.";
                     return RedirectToAction("Index");
                 }
@@ -296,6 +367,14 @@ namespace RRS.Controllers
             }
             catch (Exception ex)
             {
+                var errologParams = new SqlParameter[]
+                {
+                    new SqlParameter("@Activity", SqlDbType.VarChar) { Value = "Failed to delete a table" },
+                    new SqlParameter("@UserId", SqlDbType.Int) { Value = userId },
+                    new SqlParameter("@Status", SqlDbType.VarChar) { Value = "Failed" }
+                };
+                context.Database.ExecuteSqlRaw("EXEC InsertAuditLog @Activity, @UserId, @Status", errologParams);
+
                 Console.WriteLine(ex.ToString());
                 TempData["ErrorMessage"] = "An error occurred while deleting the table.";
                 return RedirectToAction("Index");
@@ -320,6 +399,22 @@ namespace RRS.Controllers
 
             var byteArray = Encoding.UTF8.GetBytes(csvContent.ToString());
             var stream = new MemoryStream(byteArray);
+
+            // Retrieve UserId securely from authentication claims
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+            {
+                logger.LogWarning("Invalid or missing UserId in claims.");
+                return RedirectToAction("Login");
+            }
+
+            var logParams = new SqlParameter[]
+            {
+                    new SqlParameter("@Activity", SqlDbType.VarChar) { Value = "Export all tables into csv file" },
+                    new SqlParameter("@UserId", SqlDbType.Int) { Value = userId },
+                    new SqlParameter("@Status", SqlDbType.VarChar) { Value = "Success" }
+            };
+            context.Database.ExecuteSqlRaw("EXEC InsertAuditLog @Activity, @UserId, @Status", logParams);
 
             return File(stream, "text/csv", csvFileName);
         }

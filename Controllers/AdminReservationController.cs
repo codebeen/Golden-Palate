@@ -1,19 +1,27 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using RRS.Data;
 using RRS.Models.ViewModels;
+using System.Data;
+using System.Security.Claims;
 using System.Text;
 
 namespace RRS.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class AdminReservationController : Controller
     {
         private readonly ApplicationDbContext context;
+        private readonly ILogger<AdminReservationController> logger;
 
-        public AdminReservationController(ApplicationDbContext context)
+        public AdminReservationController(ApplicationDbContext context, ILogger<AdminReservationController> logger)
         {
             this.context = context;
+            this.logger = logger;
         }
+
         public IActionResult Index()
         {
             // Fetch ReservationDetails view model from the stored procedure or database.
@@ -30,7 +38,6 @@ namespace RRS.Controllers
             if (getSpecificReservation == null)
             {
                 TempData["ErrorMessage"] = "Reservation not found";
-
                 return RedirectToAction("Index");
             }
 
@@ -55,6 +62,22 @@ namespace RRS.Controllers
 
             var byteArray = Encoding.UTF8.GetBytes(csvContent.ToString());
             var stream = new MemoryStream(byteArray);
+
+            // Retrieve UserId securely from authentication claims
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+            {
+                logger.LogWarning("Invalid or missing UserId in claims.");
+                return RedirectToAction("Login");
+            }
+
+            var logParams = new SqlParameter[]
+            {
+                    new SqlParameter("@Activity", SqlDbType.VarChar) { Value = "Export all reservations into csv file" },
+                    new SqlParameter("@UserId", SqlDbType.Int) { Value = userId },
+                    new SqlParameter("@Status", SqlDbType.VarChar) { Value = "Success" }
+            };
+            context.Database.ExecuteSqlRaw("EXEC InsertAuditLog @Activity, @UserId, @Status", logParams);
 
             return File(stream, "text/csv", csvFileName);
         }

@@ -24,48 +24,6 @@
     <a class="btn @(currentAction == "GetCancelledReservations" ? "btn-dark" : "btn-outline-dark") p-2" asp-action="GetCancelledReservations" asp-controller="StaffReservation">Cancelled Reservations</a>
 </div>
 
-<script>
-    $(document).ready(function () {
-        new DataTable('#reservationTable');
-    });
-
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <text>
-                            Swal.fire({
-                                title: 'Success!',
-                            text: '@TempData["SuccessMessage"]',
-                            icon: 'success',
-                            confirmButtonText: 'OK'
-                                         });
-        </text>
-    }
-
-    @if (TempData["InformationMessage"] != null)
-    {
-        <text>
-                            Swal.fire({
-                                title: 'Information!',
-                            text: '@TempData["InformationMessage"]',
-                            icon: 'info',
-                            confirmButtonText: 'OK'
-                                                 });
-        </text>
-    }
-
-    @if (TempData["ErrorMessage"] != null)
-    {
-        <text>
-                            Swal.fire({
-                                title: 'Error!',
-                            text: '@TempData["ErrorMessage"]',
-                            icon: 'error',
-                            confirmButtonText: 'OK'
-                                        });
-        </text>
-    }
-</script>
-
 <!-- DataTales Example -->
 <div class="card border-0 shadow-sm mb-5">
     <div class="card-body">
@@ -143,47 +101,13 @@
                             </td>
                             <td class="align-middle text-center">
                                 <div class="d-flex justify-content-start gap-1 flex-wrap">
-                                    <button type="button" class="btn btn-info btn-sm rounded px-3 py-1" data-bs-toggle="modal" data-bs-target="#staffViewDetails-@reservation.Id" data-url="@Url.Action($"ViewReservationDetailsStaff/{reservation.Id}")">
+                                    <button onclick="showReservationDetailsModal('@reservation.Id')" type="button" class="btn btn-info btn-sm rounded px-3 py-1" data-bs-toggle="modal" data-bs-target="#staffViewDetails-@reservation.Id" data-url="@Url.Action($"ViewReservationDetailsStaff/{reservation.Id}")">
                                         View
                                     </button>
                                     @await Html.PartialAsync("ReservationDetails", reservation)
-
-                                    @if (reservation.ReservationStatus.ToLower() == "pending")
-                                    {
-                                        if (reservationStartDateTime >= DateTime.Now)
-                                        {
-                                            <form method="post" asp-action="StartReservation" asp-controller="StaffReservation" class="d-inline-block">
-                                                <input type="hidden" name="reservationId" value="@reservation.Id" />
-                                                <button type="submit" class="btn btn-warning btn-sm rounded px-3 py-1">
-                                                    Start
-                                                </button>
-                                            </form>
-                                        }
-                                        else
-                                        {
-                                            <form method="post" asp-action="CancelReservation" asp-controller="StaffReservation" class="d-inline-block">
-                                                <input type="hidden" name="reservationId" value="@reservation.Id" />
-                                                <button type="submit" class="btn btn-danger btn-sm rounded px-3 py-1">
-                                                    Cancel
-                                                </button>
-                                            </form>
-                                        }
-                                    }
-
-                                    @if (reservation.ReservationStatus.ToLower() == "ongoing")
-                                    {
-                                        <form method="post" asp-action="CompleteReservation" asp-controller="StaffReservation" class="d-inline-block">
-                                            <input type="hidden" name="reservationId" value="@reservation.Id" />
-                                            <button type="submit" class="btn btn-success btn-sm rounded px-3 py-1">
-                                                Complete
-                                            </button>
-                                        </form>
-                                    }
                                 </div>
                             </td>
-
                         </tr>
-
                         counter++;
                     }
                 </tbody>
@@ -196,6 +120,67 @@
 <a class="scroll-to-top rounded" href="#page-top">
     <i class="fas fa-angle-up"></i>
 </a>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <script>
+        Swal.fire({
+        title: 'Success!',
+        text: '@TempData["SuccessMessage"]',
+        icon: 'success',
+        confirmButtonText: 'OK'
+        });
+    </script>
+}
+
+@if (TempData["InformationMessage"] != null)
+{
+    <script>
+        Swal.fire({
+        title: 'Information!',
+        text: '@TempData["InformationMessage"]',
+        icon: 'info',
+        confirmButtonText: 'OK'
+        });
+    </script>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <script>
+        Swal.fire({
+        title: 'Error!',
+        text: '@TempData["ErrorMessage"]',
+        icon: 'error',
+        confirmButtonText: 'OK'
+        });
+    </script>
+}
+
+<script>
+    $(document).ready(function () {
+        new DataTable('#reservationTable');
+    });
+
+    function showReservationDetailsModal(reservationId) {
+        // Clear any existing modal backdrops
+        removeModalBackdrops();
+
+        const modalElement = document.getElementById(`staffViewDetails-${reservationId}`);
+
+        if (modalElement) {
+            const reservationDetailsModal = new bootstrap.Modal(modalElement);
+            reservationDetailsModal.show();
+        } else {
+            console.error(`Modal with ID staffViewDetails-${reservationId} not found`);
+        }
+    }
+
+    function removeModalBackdrops() {
+        const backdrops = document.querySelectorAll('.modal-backdrop');
+        backdrops.forEach(backdrop => backdrop.remove());
+    }
+</script>
 
 <!-- Bootstrap JS Bundle -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
